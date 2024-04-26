@@ -2,7 +2,7 @@ from airflow import DAG
 import datetime
 import pendulum
 from airflow.operators.bash import BashOperator
-
+import pandas as pd
 
 with DAG(
     dag_id='dags_bash_operator', # 웹에서 보이는 DAG 이름(python 파일명과는 상관 없음.)
@@ -25,4 +25,5 @@ with DAG(
     )
 
     bash_t1 >> bash_t2 # task가 돌아가는 순서 결정 t1 이후에 t2 실행
+
 
