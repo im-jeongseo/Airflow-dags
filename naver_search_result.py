@@ -46,7 +46,7 @@ def preprocessing(ti):
          "link": item["link"]} for item in items
     ])
 
-    processed_items.to_csv ("/opt/airflow/data/naver_processed_result.csv", index=None, header=False)
+    processed_items.to_csv ("/opt/airflow/naver_processed_result.csv", index=None, header=False)
 
 # DAG 틀 설정
 with DAG(
