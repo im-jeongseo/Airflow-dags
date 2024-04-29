@@ -2,7 +2,7 @@
 from datetime import datetime
 from airflow import DAG
 import json
-from preprocess.naver_preprocess import preprocessing
+# from preprocess.naver_preprocess import preprocessing
 
 # 사용할 Operator Import
 # from airflow.providers.sqlite.operators.sqlite import SqliteOperator
