@@ -1,4 +1,4 @@
-from apndas import json_normalize
+from pandas import json_normalize
 
 __all__ = ["preprocessing"]
 
