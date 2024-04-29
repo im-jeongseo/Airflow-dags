@@ -13,6 +13,8 @@ from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
 from airflow.operators.email import EmailOperator
 
+from pandas import json_normalize
+
 # 디폴트 설정
 default_args = {
     "start_date": datetime(2022, 1, 1) # 2022년 1월 1일 부터 대그 시작 --> 현재는 22년 7월이므로 대그를 실행하면 무조건 한 번은 돌아갈 것
@@ -24,6 +26,27 @@ NAVER_CLI_SECRET = "ckkvO4Q3AW"
 
 def _complete():
     print("네이버 검색 DAG 완료")
+
+def preprocessing(ti):
+    # ti(task instance) dag 내의 task의 정보를 얻어 낼 수 있는 객체
+
+    # xcom(cross communication) - Operator와 Operator 사이에 데이터를 전달 할 수 있게끔 하는 도구
+    search_result = ti.xcom_pull(task_ids=["crawl_naver"])
+
+    # xcom을 이용해 가지고 온 결과가 없는 경우
+    if not len(search_result):
+        raise ValueError("검색 결과 없음")
+    
+    items = search_result[0]["items"]
+    processed_items = json_normalize([
+        {"title": item["title"],
+         "address": item["address"],
+         "category": item["category"],
+         "description": item["description"],
+         "link": item["link"]} for item in items
+    ])
+
+    processed_items.to_csv ("/opt/airflow/data/naver_processed_result.csv", index=None, header=False)
 
 # DAG 틀 설정
 with DAG(
@@ -86,7 +109,6 @@ with DAG(
         response_filter=lambda res : json.loads(res.text),
         log_response=True
     )
-    
     # 검색 결과 전처리하고 CSV 저장
     preprocess_result = PythonOperator(
             task_id="preprocess_result",
