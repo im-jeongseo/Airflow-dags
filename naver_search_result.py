@@ -50,6 +50,7 @@ def preprocessing(ti):
 
     processed_items.to_csv ("/opt/airflow/naver_processed_result.csv", index=None, header=False)
 
+
 def load_csv_to_postgres():
     # Read CSV file into a Pandas DataFrame
     df = pd.read_csv('/opt/airflow/naver_processed_result.csv')
@@ -77,11 +78,11 @@ with DAG(
         # naver_search_result 라는 테이블이 없는 경우에만 만들도록 IF NOT EXISTS 조건을 넣어주자.
         sql="""
             CREATE TABLE IF NOT EXISTS naver_search_result( 
-                title VARCHAR NOT NULL,
-                address VARCHAR NOT NULL,
-                category VARCHAR NOT NULL,
-                description VARCHAR NOT NULL,
-                link VARCHAR NOT NULL
+                title VARCHAR,
+                address VARCHAR,
+                category VARCHAR,
+                description VARCHAR,
+                link VARCHAR
             );
         """,
     )
