@@ -18,7 +18,7 @@ dag = DAG(
     dag_id='imsi_dag_v0.0.1',
     default_args=default_args,
     schedule='1 * * * *',
-    start_datae=datetime(2023, 2 ,15, tzinfo=local_tz),
+    start_date=datetime(2023, 2 ,15, tzinfo=local_tz),
     catchup=False
 )
 
