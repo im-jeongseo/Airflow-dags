@@ -63,7 +63,7 @@ with DAG(
     # 지역 식당명, 주소, 카테고리, 설명, 링크를 저장할 것이므로 다음과 같이 테이블을 구성한다.
     creating_table = PostgresOperator(
         task_id="creating_table",
-        postgres_conn_id='postgres_default',
+        postgres_conn_id='stock_test',
         # naver_search_result 라는 테이블이 없는 경우에만 만들도록 IF NOT EXISTS 조건을 넣어주자.
         sql="""
             CREATE TABLE IF NOT EXISTS naver_search_result( 
