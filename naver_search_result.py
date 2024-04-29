@@ -47,7 +47,7 @@ def preprocessing(ti):
          "description": item["description"],
          "link": item["link"]} for item in items
     ])
-
+    print(processed_items)
     processed_items.to_csv ("/opt/airflow/naver_processed_result.csv", index=None, header=False)
 
 
