@@ -14,6 +14,8 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.email import EmailOperator
 
 from pandas import json_normalize
+import pandas as pd
+from sqlalchemy import create_engine
 
 # 디폴트 설정
 default_args = {
@@ -47,6 +49,14 @@ def preprocessing(ti):
     ])
 
     processed_items.to_csv ("/opt/airflow/naver_processed_result.csv", index=None, header=False)
+
+def load_csv_to_postgres():
+    # Read CSV file into a Pandas DataFrame
+    df = pd.read_csv('/opt/airflow/naver_processed_result.csv')
+    # Create a SQLAlchemy engine to connect to PostgreSQL
+    engine = create_engine('postgresql://postgres:postgres@192.168.168.133:30032/stock')
+    # Replace 'table_name' with your desired table name
+    df.to_sql('naver_search_result', engine, if_exists='replace', index=False)
 
 # DAG 틀 설정
 with DAG(
@@ -117,11 +127,16 @@ with DAG(
     )
 
     # csv 파일로 저장된 것을 테이블에 저장
-    store_result = BashOperator(
-        task_id="store_naver",
-        # bash_command='echo -e ".separator ","\n.import /home/kurran/airflow/dags/data/naver_processed_result.csv naver_search_result" | sqlite3 /home/kurran/airflow/airflow.db'
-        bash_command= 'psql stock -U postgres -p 30032 \
-            -c "COPY naver_search_result FROM '"'/opt/airflow/naver_processed_result.csv'"' WITH DELIMITER '"','"' CSV HEADER; "'
+    #store_result = BashOperator(
+    #    task_id="store_naver",
+    #    # bash_command='echo -e ".separator ","\n.import /home/kurran/airflow/dags/data/naver_processed_result.csv naver_search_result" | sqlite3 /home/kurran/airflow/airflow.db'
+    #    bash_command= 'psql stock -U postgres -p 30032 \
+    #        -c "COPY naver_search_result FROM '"'/opt/airflow/naver_processed_result.csv'"' WITH DELIMITER '"','"' CSV HEADER; "'
+    #)
+    store_result = PythonOperator(
+    task_id='store_result',
+    python_callable=load_csv_to_postgres,
+    dag=dag,
     )
 
     # 대그 완료 출력
