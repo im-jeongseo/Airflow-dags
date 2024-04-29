@@ -30,7 +30,7 @@ start_task = BashOperator(
 
 echo_task = BashOperator(
     task_id='echo_task',
-    bash_command="echo 678"
+    bash_command="echo 678",
     dag=dag
 )
 
