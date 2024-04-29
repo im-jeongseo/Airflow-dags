@@ -1,7 +1,7 @@
 import pendulum
 from airflow import DAG
 from airflow.operators.bash import BashOperator
-from datetimes import datetime, timedelta
+from datetime import datetime, timedelta
 
 local_tz = pendulum.timezone("Asia/Seoul")
 
