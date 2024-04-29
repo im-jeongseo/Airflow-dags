@@ -9,7 +9,6 @@ import json
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.providers.http.sensors.http import HttpSensor
 from airflow.providers.http.operators.http import SimpleHttpOperator
-# from airflow.operators.postgres import PostgresOperator
 from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
 from airflow.operators.email import EmailOperator
@@ -64,15 +63,16 @@ with DAG(
     # 지역 식당명, 주소, 카테고리, 설명, 링크를 저장할 것이므로 다음과 같이 테이블을 구성한다.
     creating_table = PostgresOperator(
         task_id="creating_table",
+        postgres_conn_id='postgres_default',
         # naver_search_result 라는 테이블이 없는 경우에만 만들도록 IF NOT EXISTS 조건을 넣어주자.
         sql="""
             CREATE TABLE IF NOT EXISTS naver_search_result( 
-                title VARCHAR,
-                address VARCHAR,
-                category VARCHAR,
-                description VARCHAR,
-                link VARCHAR
-            )
+                title VARCHAR NOT NULL,
+                address VARCHAR NOT NULL,
+                category VARCHAR NOT NULL,
+                description VARCHAR NOT NULL,
+                link VARCHAR NOT NULL
+            );
         """,
     )
 
