@@ -120,8 +120,7 @@ with DAG(
     store_result = BashOperator(
         task_id="store_naver",
         # bash_command='echo -e ".separator ","\n.import /home/kurran/airflow/dags/data/naver_processed_result.csv naver_search_result" | sqlite3 /home/kurran/airflow/airflow.db'
-        psql -U postgres -d "stock" \
--c "COPY naver_search_result FROM '"'/opt/airflow/naver_processed_result.csv'"' DELIMITER '"','"' CSV HEADER; "
+        bash_command= 'psql -U postgres -d "stock" -c "COPY naver_search_result FROM '"'/opt/airflow/naver_processed_result.csv'"' DELIMITER '"','"' CSV HEADER; "'
     )
 
     # 대그 완료 출력
