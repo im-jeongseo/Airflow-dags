@@ -64,7 +64,14 @@ with DAG(
     dag_id="naver-search-pipeline",
     # crontab 표현 사용 가능 https://crontab.guru/
     schedule_interval="@daily", 
-    default_args=default_args,
+    default_args={
+        'owner': 'airflow',
+        'depends_on_past': False,
+        'start_date': days_ago(1),
+        'email_on_failure': False,
+        'email_on_retry': False,
+        'retries': 1,
+    },
     # 태그는 원하는대로
     tags=["naver", "search", "local", "api", "pipeline"],
     # catchup을 True로 하면, start_date 부터 현재까지 못돌린 날들을 채운다
