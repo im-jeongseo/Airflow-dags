@@ -12,6 +12,7 @@ from airflow.providers.http.operators.http import SimpleHttpOperator
 from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
 from airflow.operators.email import EmailOperator
+from airflow.utils.dates import days_ago
 
 from pandas import json_normalize
 import pandas as pd
