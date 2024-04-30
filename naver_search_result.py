@@ -55,8 +55,10 @@ def preprocessing(ti):
 def load_csv_to_postgres(ti):
     csv_path = ti.xcom_pull(task_ids=["preprocess_result"])
     print(f"CSV file path received: {csv_path}")
+    print(f"CSV file path received: {csv_path}")
+    print(f"CSV file path received: {csv_path}")
     # Read CSV file into a Pandas DataFrame
-    df = pd.read_csv(csv_path)
+    df = pd.read_csv("/opt/airflow/naver_processed_result.csv")
     # Create a SQLAlchemy engine to connect to PostgreSQL
     engine = create_engine('postgresql://postgres:postgres@192.168.168.133:30032/stock')
     # Replace 'table_name' with your desired table name
