@@ -125,13 +125,15 @@ with DAG(
     # 검색 결과 전처리하고 CSV 저장
     preprocess_result = PythonOperator(
             task_id="preprocess_result",
-            python_callable=preprocessing # 실행할 파이썬 함수
+            python_callable=preprocessing, # 실행할 파이썬 함수
+            python_callable=load_csv_to_postgres,
+            dag=dag,
     )
     
-    check_csv = BashOperator(
-        task_id="check_csv",
-        bash_command = 'hostname; pwd; ls -al'
-    )
+    #check_csv = BashOperator(
+    #    task_id="check_csv",
+    #    bash_command = 'hostname; pwd; ls -al'
+    #)
 
     # csv 파일로 저장된 것을 테이블에 저장
     #store_result = BashOperator(
@@ -140,11 +142,11 @@ with DAG(
     #    bash_command= 'psql stock -U postgres -p 30032 \
     #        -c "COPY naver_search_result FROM '"'/opt/airflow/naver_processed_result.csv'"' WITH DELIMITER '"','"' CSV HEADER; "'
     #)
-    store_result = PythonOperator(
-    task_id='store_result',
-    python_callable=load_csv_to_postgres,
-    dag=dag,
-    )
+    #store_result = PythonOperator(
+    #task_id='store_result',
+    #python_callable=load_csv_to_postgres,
+    #dag=dag,
+    #)
 
     # 대그 완료 출력
     print_complete = PythonOperator(
@@ -153,4 +155,4 @@ with DAG(
     )
 
     # 파이프라인 구성하기
-    creating_table >> is_api_available >> crawl_naver >> preprocess_result >> check_csv >> store_result >> print_complete
+    creating_table >> is_api_available >> crawl_naver >> preprocess_result >> print_complete
