@@ -56,8 +56,8 @@ def load_csv_to_postgres(ti):
     csv_path = ti.xcom_pull(task_ids=["preprocess_result"])
     print(f"CSV file path received: {csv_path}")
 
-    if not len(csv_path):
-        raise ValueError("검색 결과 없음")
+    #if not len(csv_path):
+    #    raise ValueError("검색 결과 없음")
     
     # Read CSV file into a Pandas DataFrame
     df = pd.read_csv("./naver_processed_result.csv")
