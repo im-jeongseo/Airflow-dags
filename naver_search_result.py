@@ -130,7 +130,7 @@ with DAG(
     
     check_csv = BashOperator(
         task_id="check_csv",
-        bash_command = 'hostname "\n" pwd "\n" ls -al "\n"'
+        bash_command = 'hostname; pwd; ls -al'
     )
 
     # csv 파일로 저장된 것을 테이블에 저장
