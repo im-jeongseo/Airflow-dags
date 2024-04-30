@@ -52,8 +52,8 @@ def preprocessing(ti):
     processed_items.to_csv ("./naver_processed_result.csv", index=None, header=False)
 
 
-def load_csv_to_postgres(ti):
-    csv_path = ti.xcom_pull(task_ids=["preprocess_result"])
+def load_csv_to_postgres(**ti):
+    csv_path = ti['task_instance'].xcom_pull(task_ids=["preprocess_result"])
     print(f"CSV file path received: {csv_path}")
 
     #if not len(csv_path):
