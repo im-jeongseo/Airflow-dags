@@ -129,8 +129,8 @@ with DAG(
     )
     
     check_csv = BashOperator(
-        task_id="check_csv"
-        bash_command = 'hostname \ pwd \ ls -al \'
+        task_id="check_csv",
+        bash_command = 'hostname "\n" pwd "\n" ls -al "\n"'
     )
 
     # csv 파일로 저장된 것을 테이블에 저장
