@@ -157,4 +157,4 @@ with DAG(
     )
 
     # 파이프라인 구성하기
-    creating_table >> is_api_available >> crawl_naver >> preprocess_result >> print_complete
+    creating_table >> is_api_available >> crawl_naver >> preprocess_result >> store_result >> print_complete
