@@ -127,6 +127,11 @@ with DAG(
             task_id="preprocess_result",
             python_callable=preprocessing # 실행할 파이썬 함수
     )
+    
+    check_csv = BashOperator(
+        task_id="check_csv"
+        bash_command = 'hostname "\n" pwd "\n" ls -al "\n"'
+    )
 
     # csv 파일로 저장된 것을 테이블에 저장
     #store_result = BashOperator(
@@ -148,4 +153,4 @@ with DAG(
     )
 
     # 파이프라인 구성하기
-    creating_table >> is_api_available >> crawl_naver >> preprocess_result >> store_result >> print_complete
+    creating_table >> is_api_available >> crawl_naver >> preprocess_result >> check_csv >> store_result >> print_complete
