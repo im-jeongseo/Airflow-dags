@@ -62,7 +62,7 @@ def load_csv_to_postgres(ti):
     #    raise ValueError("검색 결과 없음")
     
     # Read CSV file into a Pandas DataFrame
-    df = pd.read_csv(csv_path)
+    df = pd.read_csv(csv_path[0])
     # Create a SQLAlchemy engine to connect to PostgreSQL
     engine = create_engine('postgresql://postgres:postgres@192.168.168.133:30032/stock')
     # Replace 'table_name' with your desired table name
