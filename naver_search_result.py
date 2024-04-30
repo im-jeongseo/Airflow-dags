@@ -57,6 +57,10 @@ def load_csv_to_postgres(ti):
     print(f"CSV file path received: {csv_path}")
     print(f"CSV file path received: {csv_path}")
     print(f"CSV file path received: {csv_path}")
+
+    if not len(csv_path):
+        raise ValueError("검색 결과 없음")
+    
     # Read CSV file into a Pandas DataFrame
     df = pd.read_csv("/opt/airflow/naver_processed_result.csv")
     # Create a SQLAlchemy engine to connect to PostgreSQL
@@ -130,6 +134,7 @@ with DAG(
     preprocess_result = PythonOperator(
             task_id="preprocess_result",
             python_callable=preprocessing, # 실행할 파이썬 함수
+            provide_context=True,
             dag=dag,
     )
     
@@ -148,7 +153,7 @@ with DAG(
     store_result = PythonOperator(
             task_id='store_result',
             python_callable=load_csv_to_postgres,
-            provide_context=True,
+            #provide_context=True,
             dag=dag,
     )
 
