@@ -11,7 +11,7 @@ from airflow.providers.http.sensors.http import HttpSensor
 from airflow.providers.http.operators.http import SimpleHttpOperator
 from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
-from airflow.operators.email import EmailOperator
+from airflow.operators.email import EmailOperator 
 from airflow.utils.dates import days_ago
 
 from pandas import json_normalize
@@ -153,7 +153,7 @@ with DAG(
     store_result = PythonOperator(
             task_id='store_result',
             python_callable=load_csv_to_postgres,
-            #provide_context=True,
+            provide_context=True,
             dag=dag,
     )
 
