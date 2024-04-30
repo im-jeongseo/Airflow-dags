@@ -49,20 +49,18 @@ def preprocessing(ti):
          "link": item["link"]} for item in items
     ])
     print(processed_items)
-    processed_items.to_csv ("/opt/airflow/naver_processed_result.csv", index=None, header=False)
+    processed_items.to_csv ("./naver_processed_result.csv", index=None, header=False)
 
 
 def load_csv_to_postgres(ti):
     csv_path = ti.xcom_pull(task_ids=["preprocess_result"])
-    print(f"CSV file path received: {csv_path}")
-    print(f"CSV file path received: {csv_path}")
     print(f"CSV file path received: {csv_path}")
 
     if not len(csv_path):
         raise ValueError("검색 결과 없음")
     
     # Read CSV file into a Pandas DataFrame
-    df = pd.read_csv("/opt/airflow/naver_processed_result.csv")
+    df = pd.read_csv("./naver_processed_result.csv")
     # Create a SQLAlchemy engine to connect to PostgreSQL
     engine = create_engine('postgresql://postgres:postgres@192.168.168.133:30032/stock')
     # Replace 'table_name' with your desired table name
@@ -135,7 +133,7 @@ with DAG(
             task_id="preprocess_result",
             python_callable=preprocessing, # 실행할 파이썬 함수
             provide_context=True,
-            dag=dag,
+            dag=dag
     )
     
     #check_csv = BashOperator(
@@ -154,7 +152,7 @@ with DAG(
             task_id='store_result',
             python_callable=load_csv_to_postgres,
             provide_context=True,
-            dag=dag,
+            dag=dag
     )
 
     # 대그 완료 출력
