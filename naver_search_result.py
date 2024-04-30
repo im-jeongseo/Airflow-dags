@@ -52,9 +52,11 @@ def preprocessing(ti):
     processed_items.to_csv ("/opt/airflow/naver_processed_result.csv", index=None, header=False)
 
 
-def load_csv_to_postgres():
+def load_csv_to_postgres(ti):
+    csv_path = ti.xcom_pull(task_ids=["preprocess_result"])
+    print(f"CSV file path received: {csv_path}")
     # Read CSV file into a Pandas DataFrame
-    df = pd.read_csv("/opt/airflow/naver_processed_result.csv")
+    df = pd.read_csv(csv_path)
     # Create a SQLAlchemy engine to connect to PostgreSQL
     engine = create_engine('postgresql://postgres:postgres@192.168.168.133:30032/stock')
     # Replace 'table_name' with your desired table name
@@ -126,7 +128,6 @@ with DAG(
     preprocess_result = PythonOperator(
             task_id="preprocess_result",
             python_callable=preprocessing, # 실행할 파이썬 함수
-            python_callable=load_csv_to_postgres,
             dag=dag,
     )
     
@@ -142,11 +143,12 @@ with DAG(
     #    bash_command= 'psql stock -U postgres -p 30032 \
     #        -c "COPY naver_search_result FROM '"'/opt/airflow/naver_processed_result.csv'"' WITH DELIMITER '"','"' CSV HEADER; "'
     #)
-    #store_result = PythonOperator(
-    #task_id='store_result',
-    #python_callable=load_csv_to_postgres,
-    #dag=dag,
-    #)
+    store_result = PythonOperator(
+            task_id='store_result',
+            python_callable=load_csv_to_postgres,
+            provide_context=True,
+            dag=dag,
+    )
 
     # 대그 완료 출력
     print_complete = PythonOperator(
