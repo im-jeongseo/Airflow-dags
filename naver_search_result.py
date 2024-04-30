@@ -49,12 +49,12 @@ def preprocessing(ti):
          "link": item["link"]} for item in items
     ])
     print(processed_items)
-    processed_items.to_csv ("/opt/airflow/data/naver_processed_result.csv", index=None, header=False)
+    processed_items.to_csv ("/opt/airflow/naver_processed_result.csv", index=None, header=False)
 
 
 def load_csv_to_postgres():
     # Read CSV file into a Pandas DataFrame
-    df = pd.read_csv("/opt/airflow/data/naver_processed_result.csv")
+    df = pd.read_csv("/opt/airflow/naver_processed_result.csv")
     # Create a SQLAlchemy engine to connect to PostgreSQL
     engine = create_engine('postgresql://postgres:postgres@192.168.168.133:30032/stock')
     # Replace 'table_name' with your desired table name
