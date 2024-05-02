@@ -51,11 +51,14 @@ def preprocessing(ti):
     csv_path = '/opt/airflow/naver_processed_result.csv'
     processed_items.to_csv (csv_path, index=None, header=False)
 
+    ti.xcom_push(key='csv_path', value=csv_path)
+
+
     return csv_path
 
 
 def load_csv_to_postgres(ti):
-    csv_path = ti.xcom_pull(task_ids=["preprocess_result"])
+    csv_path = ti.xcom_pull(task_ids=["preprocess_result"], key='csv_path')
     
     if os.path.exists(csv_path):
         # Process the file
