@@ -17,6 +17,7 @@ from airflow.utils.dates import days_ago
 from pandas import json_normalize
 import pandas as pd
 from sqlalchemy import create_engine
+import os
 
 # 디폴트 설정
 default_args = {
@@ -66,7 +67,7 @@ def load_csv_to_postgres(ti):
     else:
         raise FileNotFoundError(f"File not found at {csv_path}")
 
-    df = pd.read_csv(csv_path[0])
+    df = pd.read_csv(csv_path)
     # Create a SQLAlchemy engine to connect to PostgreSQL
     engine = create_engine('postgresql://postgres:postgres@192.168.168.133:30032/stock')
     # Replace 'table_name' with your desired table name
