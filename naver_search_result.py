@@ -58,17 +58,17 @@ def preprocessing(ti):
 def load_csv_to_postgres(ti):
     file_content = ti.xcom_pull(task_ids=["preprocess_result"], key='processed_items')
     print("File content received:", file_content)
-
+    print(file_content.type())
     #if os.path.exists(csv_path[0]):
     #    # Process the file
     #    print(f"CSV file path received: {csv_path[0]}")
     #else:
     #    raise FileNotFoundError(f"File not found at {csv_path[0]}")
-
+    df = file_content
     # Create a SQLAlchemy engine to connect to PostgreSQL
     engine = create_engine('postgresql://postgres:postgres@192.168.168.133:30032/stock')
     # Replace 'table_name' with your desired table name
-    file_content.to_sql('naver_search_result', engine, if_exists='replace', index=False)
+    df.to_sql('naver_search_result', engine, if_exists='replace', index=False)
 
 # DAG 틀 설정
 with DAG(
