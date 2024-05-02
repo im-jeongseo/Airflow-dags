@@ -15,7 +15,7 @@ from sqlalchemy import create_engine
 import os
 
 import requests
-import pandas_datareader as pdr
+#import pandas_datareader as pdr
 from bs4 import BeautifulSoup as bs
 
 
