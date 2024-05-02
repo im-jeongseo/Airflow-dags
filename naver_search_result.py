@@ -52,6 +52,12 @@ def preprocessing(ti):
     csv_path = '/opt/airflow/naver_processed_result.csv'
     processed_items.to_csv (csv_path, index=None, header=False)
 
+    if os.path.exists(csv_path):
+        # Process the file
+        print(f"CSV file path received: {csv_path}")
+    else:
+        raise FileNotFoundError(f"File not found at {csv_path}")
+
     ti.xcom_push(key='csv_path', value=csv_path)
 
 
