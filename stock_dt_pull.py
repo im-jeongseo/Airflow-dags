@@ -70,6 +70,8 @@ def stock_crawl():
     # Replace 'table_name' with your desired table name
     stock_df.to_sql('tb_stock_dt', engine, if_exists='replace', index=False)
 
+def _complete():
+    print("주식 데이터 pull DAG 완료")
 
 default_args={'start_date': days_ago(1)}
 
