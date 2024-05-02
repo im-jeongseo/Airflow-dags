@@ -50,7 +50,7 @@ def preprocessing(ti):
          "link": item["link"]} for item in items
     ])
     csv_path = '/opt/airflow/naver_processed_result.csv'
-    processed_items.to_csv (csv_path, index=None, header=False)
+    processed_items.to_csv (csv_path, index=None)
 
     ti.xcom_push(key='processed_items', value=processed_items)
 
