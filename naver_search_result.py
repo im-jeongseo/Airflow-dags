@@ -58,7 +58,7 @@ def preprocessing(ti):
 def load_csv_to_postgres(ti):
     file_content = ti.xcom_pull(task_ids=["preprocess_result"], key='processed_items')
     print("File content received:", file_content)
-    print(file_content.type())
+    #print(file_content.type())
     #if os.path.exists(csv_path[0]):
     #    # Process the file
     #    print(f"CSV file path received: {csv_path[0]}")
