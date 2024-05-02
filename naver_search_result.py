@@ -68,7 +68,7 @@ def load_csv_to_postgres(ti):
     # Create a SQLAlchemy engine to connect to PostgreSQL
     engine = create_engine('postgresql://postgres:postgres@192.168.168.133:30032/stock')
     # Replace 'table_name' with your desired table name
-    df.to_sql('naver_search_result', engine, if_exists='replace', index=False)
+    df.to_sql('naver_search_result', engine, if_exists='append', index=False)
 
 # DAG 틀 설정
 with DAG(
