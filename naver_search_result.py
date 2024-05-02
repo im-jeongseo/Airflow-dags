@@ -61,13 +61,13 @@ def preprocessing(ti):
 def load_csv_to_postgres(ti):
     csv_path = ti.xcom_pull(task_ids=["preprocess_result"], key='csv_path')
     
-    if os.path.exists(csv_path):
+    if os.path.exists(csv_path[0]):
         # Process the file
-        print(f"CSV file path received: {csv_path}")
+        print(f"CSV file path received: {csv_path[0]}")
     else:
-        raise FileNotFoundError(f"File not found at {csv_path}")
+        raise FileNotFoundError(f"File not found at {csv_path[0]}")
 
-    df = pd.read_csv(csv_path)
+    df = pd.read_csv(csv_path[0])
     # Create a SQLAlchemy engine to connect to PostgreSQL
     engine = create_engine('postgresql://postgres:postgres@192.168.168.133:30032/stock')
     # Replace 'table_name' with your desired table name
