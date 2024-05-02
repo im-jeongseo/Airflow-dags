@@ -68,7 +68,7 @@ def stock_crawl():
     # Create a SQLAlchemy engine to connect to PostgreSQL
     engine = create_engine('postgresql://postgres:postgres@192.168.168.133:30032/stock')
     # Replace 'table_name' with your desired table name
-    stock_df.to_sql('naver_search_result', engine, if_exists='replace', index=False)
+    stock_df.to_sql('tb_stock_dt', engine, if_exists='replace', index=False)
 
 
 default_args={'start_date': days_ago(1)}
@@ -112,5 +112,12 @@ with DAG(
         dag=dag,
     )
 
+    # 대그 완료 출력
+    print_complete = PythonOperator(
+            task_id="print_complete",
+            python_callable=_complete # 실행할 파이썬 함수
+    )
+
+
     # 파이프라인 구성하기
-    creating_table >> stock_dt_pull
+    creating_table >> stock_dt_pull >> print_complete
