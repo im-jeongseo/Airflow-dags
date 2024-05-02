@@ -50,7 +50,8 @@ def preprocessing(ti):
          "link": item["link"]} for item in items
     ])
     csv_path = '/opt/airflow/naver_processed_result.csv'
-    processed_items.to_csv (csv_path, index=None, header=False)
+    #processed_items.to_csv (csv_path, index=None, header=False)
+    processed_items.to_csv (csv_path, index=None)
 
     df = pd.read_csv(csv_path)
     # Create a SQLAlchemy engine to connect to PostgreSQL
