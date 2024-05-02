@@ -52,14 +52,11 @@ def preprocessing(ti):
     csv_path = '/opt/airflow/naver_processed_result.csv'
     processed_items.to_csv (csv_path, index=None, header=False)
 
-    with open(csv_path, 'r') as file:
-        file_content = file.read()
-
-    ti.xcom_push(key='file_content', value=file_content)
+    ti.xcom_push(key='file_content', value=processed_items)
 
 
 def load_csv_to_postgres(ti):
-    file_content = ti.xcom_pull(task_ids=["preprocess_result"], key='file_content')
+    file_content = ti.xcom_pull(task_ids=["preprocess_result"], key='processed_items')
     print("File content received:", file_content)
 
     #if os.path.exists(csv_path[0]):
@@ -68,11 +65,10 @@ def load_csv_to_postgres(ti):
     #else:
     #    raise FileNotFoundError(f"File not found at {csv_path[0]}")
 
-    df = pd.read_csv(file_content)
     # Create a SQLAlchemy engine to connect to PostgreSQL
     engine = create_engine('postgresql://postgres:postgres@192.168.168.133:30032/stock')
     # Replace 'table_name' with your desired table name
-    df.to_sql('naver_search_result', engine, if_exists='replace', index=False)
+    file_content.to_sql('naver_search_result', engine, if_exists='replace', index=False)
 
 # DAG 틀 설정
 with DAG(
