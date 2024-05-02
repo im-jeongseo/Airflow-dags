@@ -50,7 +50,7 @@ def get_day_list(item_code, page_no):
 
 def stock_crawl():
     value = '삼성전자'
-    page = 3
+    page = 10
 
     df = pd.DataFrame()
     for page in range(1, page):
@@ -68,7 +68,7 @@ def stock_crawl():
     # Create a SQLAlchemy engine to connect to PostgreSQL
     engine = create_engine('postgresql://postgres:postgres@192.168.168.133:30032/stock')
     # Replace 'table_name' with your desired table name
-    stock_df.to_sql('tb_stock_dt', engine, if_exists='replace', index=False)
+    stock_df.to_sql('tb_stock_dt', engine, if_exists='append', index=False)
 
 def _complete():
     print("주식 데이터 pull DAG 완료")
