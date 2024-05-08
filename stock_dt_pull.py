@@ -2,11 +2,7 @@ from datetime import datetime
 from airflow import DAG
 
 from airflow.providers.postgres.operators.postgres import PostgresOperator
-from airflow.providers.http.sensors.http import HttpSensor
-from airflow.providers.http.operators.http import SimpleHttpOperator
 from airflow.operators.python import PythonOperator
-from airflow.operators.bash import BashOperator
-from airflow.operators.email import EmailOperator 
 from airflow.utils.dates import days_ago
 
 from pandas import json_normalize
