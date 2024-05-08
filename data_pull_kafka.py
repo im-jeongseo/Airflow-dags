@@ -115,12 +115,12 @@ def _complete():
 default_args={'start_date': days_ago(1)}
 
 with DAG(
-    dag_id="naver-search-pipeline",
+    dag_id="kafka-data-pull",
     # crontab 표현 사용 가능 https://crontab.guru/
     schedule_interval="@daily", 
     default_args=default_args,
     # 태그는 원하는대로
-    tags=["naver", "search", "local", "api", "pipeline"],
+    tags=["kafka", "search", "local", "api", "pipeline"],
     # catchup을 True로 하면, start_date 부터 현재까지 못돌린 날들을 채운다
     catchup=False) as dag:
 
