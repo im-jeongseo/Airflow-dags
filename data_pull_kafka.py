@@ -46,8 +46,6 @@ def install(package, upgrade=True):
     except Exception as e:
         print(e)
 
-def install_lib():
-    pip.install(kafka-python)
 
 def kafka_producer():
     # Kafka Producer 설정
@@ -172,7 +170,7 @@ with DAG(
 
     install_lib = PythonOperator(
         task_id="install_lib",
-        python_callable=install_lib, # 실행할 파이썬 함수
+        python_callable=install(kafka-python), # 실행할 파이썬 함수
         provide_context=True,
         dag=dag,
     )
