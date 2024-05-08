@@ -21,15 +21,37 @@ import os
 
 from bs4 import BeautifulSoup
 import requests
-from kafka import KafkaProducer
-
-from kafka import KafkaConsumer
 import psycopg2
 from datetime import timedelta
+import pip
 
+def install(package, upgrade=True):
+    # package install with upgrade or not
+    if hasattr(pip, 'main'):
+        if upgrade:
+            pip.main(['install', '--upgrade', package])
+        else:
+            pip.main(['install', package])
+    else:
+        if upgrade:
+            pip._internal.main(['install', '--upgrade', package])
+        else:
+            pip._internal.main(['install', package])
+
+    # import package
+    try:
+        eval(f"import {package}")
+    except ModuleNotFoundError:
+        print("# Package name might be differnt. please check it again.")
+    except Exception as e:
+        print(e)
+
+def install_lib():
+    pip.install(kafka-python)
 
 def kafka_producer():
     # Kafka Producer 설정
+    from kafka import KafkaProducer
     producer = KafkaProducer(bootstrap_servers=['192.168.168.133:31360', '192.168.168.133:32398', '192.168.168.133:30052'],
                             value_serializer=lambda v: json.dumps(v, ensure_ascii=False).encode('UTF-8'),
                             key_serializer=lambda v: json.dumps(v, ensure_ascii=False).encode('UTF-8'))
@@ -74,6 +96,7 @@ def kafka_producer():
 
 
 def kafka_consumer():
+    from kafka import KafkaConsumer
     consumer = KafkaConsumer('crawling-test', 
                             bootstrap_servers=['192.168.168.133:31360', '192.168.168.133:32398', '192.168.168.133:30052'],
                             enable_auto_commit=True,
@@ -147,6 +170,13 @@ with DAG(
     """,
     )
 
+    install_lib = PythonOperator(
+        task_id="install_lib",
+        python_callable=install_lib, # 실행할 파이썬 함수
+        provide_context=True,
+        dag=dag,
+    )
+
     kafka_producer_pull = PythonOperator(
         task_id="kafka_producer_pull",
         python_callable=kafka_producer, # 실행할 파이썬 함수
@@ -169,4 +199,4 @@ with DAG(
 
 
     # 파이프라인 구성하기
-    creating_table >> kafka_producer_pull >> kafka_consumer_push >> print_complete
+    creating_table >> install_lib >> kafka_producer_pull >> kafka_consumer_push >> print_complete
