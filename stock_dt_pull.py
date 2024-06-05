@@ -46,7 +46,7 @@ def get_day_list(item_code, page_no):
 
 def stock_crawl():
     value = '삼성전자'
-    page = 10
+    page = 20
 
     df = pd.DataFrame()
     for page in range(1, page):
