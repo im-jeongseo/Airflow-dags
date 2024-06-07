@@ -51,21 +51,8 @@ def fetch_data_from_postgres(**context):
     context['task_instance'].xcom_push(key='dataframe', value=df_dict)
 
 
-dag = DAG(
-    'processing_forecast',
-    default_args={'start_date': days_ago(1)},
-    schedule_interval=None,
-)
-
-fetch_data = PythonOperator(
-    task_id='fetch_data_from_postgres',
-    python_callable=fetch_data_from_postgres,
-    provide_context=True,
-    dag=dag,
-)
-
 #def process_data_from_xcom(task_instance, **kwargs):
-def process_data_from_xcom(**context):
+def process_data_from_xcom(**kwargs):
     #from sklearn.model_selection import train_test_split
     
     #import statsmodels.api as sm
@@ -74,7 +61,6 @@ def process_data_from_xcom(**context):
     
     # xcom으로 postgres table pull
     import pandas as pd
-    import pickle
     from airflow.models import TaskInstance
     from airflow.utils.db import provide_session
 
@@ -85,11 +71,19 @@ def process_data_from_xcom(**context):
 
     @provide_session
     def get_xcom_value(task_instance, session=None):
-       ti = TaskInstance(task_instance)
+       ti = TaskInstance(**task_instance)
        return ti.xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe', session=session)
     
-    task_instance = context['task_instance']
-    df_dict = get_xcom_value(task_instance)
+    task_instance = kwargs['task_instance']
+    execution_date = kwargs['execution_date']
+
+    task_instance_dict = {
+        'dag_id': 'processing_forecast',
+        'task_id': 'fetch_data_from_postgres',
+        'execution_date': execution_date,
+    }
+
+    df_dict = get_xcom_value(task_instance_dict)
     df_init = pd.DataFrame(df_dict)
     print(df_init)
 
@@ -147,14 +141,31 @@ def process_data_from_xcom(**context):
     
     # print(pred_val)
 
+
+dag = DAG(
+    'processing_forecast',
+    default_args={'start_date': days_ago(1)},
+    schedule_interval=None,
+)
+
+fetch_data = PythonOperator(
+    task_id='fetch_data_from_postgres',
+    python_callable=fetch_data_from_postgres,
+    provide_context=True,
+    dag=dag,
+)
+
 reprocess_data = PythonVirtualenvOperator(
     task_id='process_data_from_xcom',
     python_callable=process_data_from_xcom,
     #requirements=["scikit-learn","statsmodels","apache-airflow"],
     requirements=["apache-airflow==2.8.3","pandas","datetime"],
     system_site_packages=False,
-    provide_context=True,
-    #op_args=['{{ task_instance }}'],
+    #provide_context=True,
+    op_kwargs={
+        'task_instance': '{{ task_instance_key_str }}',
+        'execution_date': '{{ execution_date }}',
+    },
     dag=dag,
 )
 
