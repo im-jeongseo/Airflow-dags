@@ -30,7 +30,7 @@ def fetch_data_from_postgres(**context):
     postgres_hook = PostgresHook(postgres_conn_id='postgres_stock')
     
     # Execute SQL query to fetch data
-    sql_query = "SELECT * FROM  batch_test"
+    sql_query = "SELECT * FROM  batch"
     connection = postgres_hook.get_conn()
     cursor = connection.cursor()
     cursor.execute(sql_query)
