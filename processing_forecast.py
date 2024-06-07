@@ -12,14 +12,14 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import r2_score
+#from sklearn.model_selection import train_test_split
+#from sklearn.metrics import r2_score
 
-import statsmodels.api as sm
-from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
-from statsmodels.tsa.arima.model import ARIMA
-from statsmodels.tsa.statespace.sarimax import SARIMAX
-from pmdarima.arima import auto_arima
+#import statsmodels.api as sm
+#from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+#from statsmodels.tsa.arima.model import ARIMA
+#from statsmodels.tsa.statespace.sarimax import SARIMAX
+#from pmdarima.arima import auto_arima
 
 from datetime import datetime, timedelta
 import itertools
@@ -59,6 +59,15 @@ def fetch_data_from_postgres(**context):
 
 
 def process_data_from_xcom(**context):
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import r2_score
+
+    import statsmodels.api as sm
+    from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+    from statsmodels.tsa.arima.model import ARIMA
+    from statsmodels.tsa.statespace.sarimax import SARIMAX
+    from pmdarima.arima import auto_arima
+
     # Get JSON data from XCom
     df_json = context['task_instance'].xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe_json')
     
@@ -127,6 +136,8 @@ fetch_data = PythonOperator(
 reprocess_data = PythonOperator(
     task_id='process_data_from_xcom',
     python_callable=process_data_from_xcom,
+    requirements=["scikit-learn","statsmodels"],
+    system_site_packages=False,
     provide_context=True,
     dag=dag,
 )
