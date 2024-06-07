@@ -64,10 +64,10 @@ def process_data_from_xcom(**context):
     from sklearn.metrics import r2_score
 
     import statsmodels.api as sm
-    from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+    # from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
     from statsmodels.tsa.arima.model import ARIMA
     from statsmodels.tsa.statespace.sarimax import SARIMAX
-    from pmdarima.arima import auto_arima
+    # from pmdarima.arima import auto_arima
 
     # Get JSON data from XCom
     df_json = context['task_instance'].xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe_json')
@@ -107,6 +107,7 @@ def process_data_from_xcom(**context):
         AIC.append(round(model_fit.aic, 2))
 
     optim = [(pdq[i], j) for i, j in enumerate(AIC) if j == min(AIC)]
+    print(optim)
 
     model = ARIMA(train_data['Close'].values, order=optim[0][0])
     model_fit = model.fit()    
