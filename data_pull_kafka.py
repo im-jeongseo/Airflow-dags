@@ -24,8 +24,8 @@ import requests
 import psycopg2
 from datetime import timedelta
 import pip
-from kafka import KafkaProducer
-from kafka import KafkaConsumer
+#from kafka import KafkaProducer
+#from kafka import KafkaConsumer
 
 
 
