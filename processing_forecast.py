@@ -52,12 +52,11 @@ def fetch_data_from_postgres(**context):
 
 
 def process_data_from_xcom(task_instance, **kwargs):
-    from sklearn.model_selection import train_test_split
-    #from sklearn.metrics import r2_score
-
-    import statsmodels.api as sm
-    from statsmodels.tsa.arima.model import ARIMA
-    from statsmodels.tsa.statespace.sarimax import SARIMAX
+    #from sklearn.model_selection import train_test_split
+    
+    #import statsmodels.api as sm
+    #from statsmodels.tsa.arima.model import ARIMA
+    #from statsmodels.tsa.statespace.sarimax import SARIMAX
     
     # xcom으로 postgres table pull
     import pandas as pd
@@ -84,8 +83,8 @@ def process_data_from_xcom(task_instance, **kwargs):
     print(df)
     
     # train,test split
-    train_data, test_data = train_test_split(df, test_size=0.3, shuffle=False)
-    dt=datetime.datetime.today()
+    #train_data, test_data = train_test_split(df, test_size=0.3, shuffle=False)
+    #dt=datetime.datetime.today()
     
     # 예측을 위한 date index 생성
     data_idx=[]
@@ -140,7 +139,8 @@ fetch_data = PythonOperator(
 reprocess_data = PythonVirtualenvOperator(
     task_id='process_data_from_xcom',
     python_callable=process_data_from_xcom,
-    requirements=["scikit-learn","statsmodels","apache-airflow"],
+    #requirements=["scikit-learn","statsmodels","apache-airflow"],
+    requirements=["apache-airflow","pandas"],
     system_site_packages=False,
     provide_context=True,
     op_args=['{{ task_instance }}'],
