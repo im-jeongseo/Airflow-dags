@@ -138,7 +138,7 @@ fetch_data = PythonOperator(
 reprocess_data = PythonVirtualenvOperator(
     task_id='process_data_from_xcom',
     python_callable=process_data_from_xcom,
-    requirements=["scikit-learn","statsmodels"],
+    requirements=["scikit-learn","statsmodels","apache-airflow==2.5.0"],
     system_site_packages=False,
     provide_context=True,
     dag=dag,
