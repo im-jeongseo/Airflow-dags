@@ -7,7 +7,7 @@ from airflow.utils.dates import days_ago
 
 from sqlalchemy import create_engine
 
-import json
+#import json
 from pandas import json_normalize
 import pandas as pd
 import numpy as np
@@ -37,46 +37,48 @@ def fetch_data_from_postgres(**context):
     
     # Fetch all rows from the executed query
     rows = cursor.fetchall()
-    
     # Get column names from the cursor description
     colnames = [desc[0] for desc in cursor.description]
     
     # Convert fetched data to DataFrame
     df = pd.DataFrame(rows, columns=colnames)
-    
+
     # Convert DataFrame to JSON string
-    df_json = df.to_json(orient='records')
+    #df_json = df.to_json(orient='records')
+    df_dict = df.to_dict(orient='records')
     
     # Push JSON data to XCom
-    context['task_instance'].xcom_push(key='dataframe_json', value=df_json)
+    context['task_instance'].xcom_push(key='dataframe', value=df_dict)
 
 
-def process_data_from_xcom(**context):
+def process_data_from_xcom(task_instance, **kwargs):
     from sklearn.model_selection import train_test_split
-    from sklearn.metrics import r2_score
+    #from sklearn.metrics import r2_score
 
     import statsmodels.api as sm
-    # from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
     from statsmodels.tsa.arima.model import ARIMA
     from statsmodels.tsa.statespace.sarimax import SARIMAX
-    # from pmdarima.arima import auto_arima
     
     # xcom으로 postgres table pull
+    import pandas as pd
     from airflow.models import TaskInstance
     from airflow.utils.db import provide_session
+
+    df_dict = task_instance.xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe')
+    df_init = pd.DataFrame(df_dict)
+    print(df_init)
+    #@provide_session
+    #def get_xcom_value(task_instance, session=None):
+    #    ti = TaskInstance(task_instance)
+    #    return ti.xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe', session=session)
     
-    @provide_session
-    def get_xcom_value(task_instance, session=None):
-        ti = TaskInstance(task_instance)
-        return ti.xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe_json', session=session)
-    
-    task_instance = {'dag_id': 'example_virtualenv_xcom', 'task_id': 'fetch_data_from_postgres', 'execution_date': '2024-06-07T00:00:00+00:00'}
-    df_json = get_xcom_value(task_instance)
+    #task_instance = {'dag_id': 'example_virtualenv_xcom', 'task_id': 'fetch_data_from_postgres', 'execution_date': '2024-06-07T00:00:00+00:00'}
+    #df_json = get_xcom_value(task_instance)
     # Get JSON data from XCom
     #df_json = context['task_instance'].xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe_json')
     
     # Convert JSON to DataFrame
-    df_init = pd.read_json(df_json, orient='records')
+    #df_init = pd.read_json(df_json, orient='records')
     
     df = df_init.set_index(keys='date')
     print(df)
@@ -138,9 +140,10 @@ fetch_data = PythonOperator(
 reprocess_data = PythonVirtualenvOperator(
     task_id='process_data_from_xcom',
     python_callable=process_data_from_xcom,
-    requirements=["scikit-learn","statsmodels","apache-airflow==2.5.0"],
+    requirements=["scikit-learn","statsmodels","apache-airflow"],
     system_site_packages=False,
     provide_context=True,
+    op_args=['{{ task_instance }}'],
     dag=dag,
 )
 
