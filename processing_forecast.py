@@ -11,18 +11,16 @@ from pandas import json_normalize
 import pandas as pd
 from datetime import datetime
 
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import r2_score
+#from sklearn.model_selection import train_test_split
+#from sklearn.metrics import r2_score
 
-import statsmodels.api as sm
-from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
-from statsmodels.tsa.arima.model import ARIMA
-from statsmodels.tsa.statespace.sarimax import SARIMAX
-from pmdarima.arima import auto_arima
+#import statsmodels.api as sm
+#from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+#from statsmodels.tsa.arima.model import ARIMA
+#from statsmodels.tsa.statespace.sarimax import SARIMAX
+#from pmdarima.arima import auto_arima
 
 from datetime import datetime, timedelta
-import yfinance as yf
-
 import itertools
 
 import warnings
