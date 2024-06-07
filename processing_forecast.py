@@ -70,7 +70,7 @@ def process_data_from_xcom(**context):
         ti = TaskInstance(task_instance)
         return ti.xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe_json', session=session)
     
-    task_instance = {'dag_id': 'example_virtualenv_xcom', 'task_id': 'fetch_data_from_postgres'}
+    task_instance = {'dag_id': 'example_virtualenv_xcom', 'task_id': 'fetch_data_from_postgres', 'execution_date': '2024-06-07T00:00:00+00:00'}
     df_json = get_xcom_value(task_instance)
     # Get JSON data from XCom
     #df_json = context['task_instance'].xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe_json')
