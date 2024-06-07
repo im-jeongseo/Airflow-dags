@@ -13,14 +13,6 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 
-#from sklearn.model_selection import train_test_split
-#from sklearn.metrics import r2_score
-
-#import statsmodels.api as sm
-#from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
-#from statsmodels.tsa.arima.model import ARIMA
-#from statsmodels.tsa.statespace.sarimax import SARIMAX
-#from pmdarima.arima import auto_arima
 
 from datetime import datetime, timedelta
 import itertools
@@ -68,17 +60,24 @@ def process_data_from_xcom(**context):
     from statsmodels.tsa.arima.model import ARIMA
     from statsmodels.tsa.statespace.sarimax import SARIMAX
     # from pmdarima.arima import auto_arima
-
+    
+    # xcom으로 postgres table pull
+    from airflow.models import TaskInstance
+    from airflow.utils.db import provide_session
+    
+    @provide_session
+    def get_xcom_value(task_instance, session=None):
+        ti = TaskInstance(task_instance)
+        return ti.xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe_json', session=session)
+    
+    task_instance = {'dag_id': 'example_virtualenv_xcom', 'task_id': 'fetch_data_from_postgres'}
+    df_json = get_xcom_value(task_instance)
     # Get JSON data from XCom
-    df_json = context['task_instance'].xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe_json')
+    #df_json = context['task_instance'].xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe_json')
     
     # Convert JSON to DataFrame
     df_init = pd.read_json(df_json, orient='records')
     
-    # Process the DataFrame as needed
-    #print("DataFrame received from XCom:")
-    #print(df)
-
     df = df_init.set_index(keys='date')
     print(df)
     
@@ -92,7 +91,8 @@ def process_data_from_xcom(**context):
         delta = datetime.timedelta(days = i)
         dtnew = dt + delta
         data_idx.append(str(dtnew))
-    
+
+
     # ARIMA 모델 생성
     p = range(0, 2)
     d = range(1, 3)
