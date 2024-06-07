@@ -51,6 +51,19 @@ def fetch_data_from_postgres(**context):
     context['task_instance'].xcom_push(key='dataframe', value=df_dict)
 
 
+dag = DAG(
+    'processing_forecast',
+    default_args={'start_date': days_ago(1)},
+    schedule_interval=None,
+)
+
+fetch_data = PythonOperator(
+    task_id='fetch_data_from_postgres',
+    python_callable=fetch_data_from_postgres,
+    provide_context=True,
+    dag=dag,
+)
+
 #def process_data_from_xcom(task_instance, **kwargs):
 def process_data_from_xcom(**context):
     #from sklearn.model_selection import train_test_split
@@ -78,7 +91,7 @@ def process_data_from_xcom(**context):
     df_dict = get_xcom_value(task_instance)
     df_init = pd.DataFrame(df_dict)
     print(df_init)
-    
+
     ## Get JSON data from XCom
     #df_json = context['task_instance'].xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe_json')
     
@@ -94,14 +107,14 @@ def process_data_from_xcom(**context):
     
     # 예측을 위한 date index 생성
 
-    import datetime
-    dt=datetime.datetime.today()
+    # import datetime
+    # dt=datetime.datetime.today()
 
-    data_idx=[]
-    for i in range(10):
-        delta = datetime.timedelta(days = i)
-        dtnew = dt + delta
-        data_idx.append(str(dtnew))
+    # data_idx=[]
+    # for i in range(10):
+    #     delta = datetime.timedelta(days = i)
+    #     dtnew = dt + delta
+    #     data_idx.append(str(dtnew))
 
 
     # ARIMA 모델 생성
@@ -133,27 +146,14 @@ def process_data_from_xcom(**context):
     
     # print(pred_val)
 
-dag = DAG(
-    'processing_forecast',
-    default_args={'start_date': days_ago(1)},
-    schedule_interval=None,
-)
-
-fetch_data = PythonOperator(
-    task_id='fetch_data_from_postgres',
-    python_callable=fetch_data_from_postgres,
-    provide_context=True,
-    dag=dag,
-)
-
 reprocess_data = PythonVirtualenvOperator(
     task_id='process_data_from_xcom',
     python_callable=process_data_from_xcom,
     #requirements=["scikit-learn","statsmodels","apache-airflow"],
-    requirements=["apache-airflow","pandas","datetime"],
+    requirements=["apache-airflow==2.8.3","pandas","datetime"],
     system_site_packages=False,
     provide_context=True,
-    op_args=['{{ task_instance }}'],
+    #op_args=['{{ task_instance }}'],
     dag=dag,
 )
 
