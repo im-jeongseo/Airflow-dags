@@ -74,6 +74,7 @@ def process_data_from_xcom(**context):
     
     # xcom으로 postgres table pull
     import pandas as pd
+    import pickle
     from airflow.models import TaskInstance
     from airflow.utils.db import provide_session
 
