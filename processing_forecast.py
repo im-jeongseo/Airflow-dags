@@ -150,7 +150,7 @@ reprocess_data = PythonVirtualenvOperator(
     task_id='process_data_from_xcom',
     python_callable=process_data_from_xcom,
     #requirements=["scikit-learn","statsmodels","apache-airflow"],
-    requirements=["apache-airflow==2.5.0","pandas","datetime"],
+    requirements=["apache-airflow==2.1.0","pandas","datetime"],
     system_site_packages=False,
     provide_context=True,
     #op_args=['{{ task_instance }}'],
