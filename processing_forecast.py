@@ -71,7 +71,7 @@ def process_data_from_xcom(**context):
     print(df)
 
 dag = DAG(
-    'example_postgres_to_xcom',
+    'processing_forecast',
     default_args={'start_date': days_ago(1)},
     schedule_interval=None,
 )
