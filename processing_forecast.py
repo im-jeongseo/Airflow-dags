@@ -31,12 +31,20 @@ import os
 import requests
 from bs4 import BeautifulSoup as bs
 
+def dag_function(**kwargs):
+    import sys
+    import subprocess
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'packagename'])
+
+    import packagename
+    # ... Use package
+
 def fetch_data_from_postgres(**context):
     # Initialize PostgresHook
     postgres_hook = PostgresHook(postgres_conn_id='postgres_stock')
     
     # Execute SQL query to fetch data
-    sql_query = "SELECT * FROM  batch"
+    sql_query = "SELECT * FROM  batch_test"
     connection = postgres_hook.get_conn()
     cursor = connection.cursor()
     cursor.execute(sql_query)
@@ -62,10 +70,13 @@ def process_data_from_xcom(**context):
     df_json = context['task_instance'].xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe_json')
     
     # Convert JSON to DataFrame
-    df = pd.read_json(df_json, orient='records')
+    df_init = pd.read_json(df_json, orient='records')
     
     # Process the DataFrame as needed
-    print("DataFrame received from XCom:")
+    #print("DataFrame received from XCom:")
+    #print(df)
+
+    df = df_init.set_index(keys='date')
     print(df)
 
 dag = DAG(
@@ -74,21 +85,24 @@ dag = DAG(
     schedule_interval=None,
 )
 
-task1 = PythonOperator(
+fetch_data = PythonOperator(
     task_id='fetch_data_from_postgres',
     python_callable=fetch_data_from_postgres,
     provide_context=True,
     dag=dag,
 )
 
-task2 = PythonOperator(
+reprocess_data = PythonOperator(
     task_id='process_data_from_xcom',
     python_callable=process_data_from_xcom,
     provide_context=True,
     dag=dag,
 )
 
-task1 >> task2  # Set task dependencies
+
+
+
+fetch_data >> reprocess_data  # Set task dependencies
 
 
 
