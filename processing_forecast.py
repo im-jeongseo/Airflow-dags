@@ -18,7 +18,7 @@ warnings.filterwarnings('ignore')
 import os
 
 
-def fetch_data_from_postgres(**context):
+def fetch_data_from_postgres(**kwargs):
     # Initialize PostgresHook
     postgres_hook = PostgresHook(postgres_conn_id='postgres_stock')
     
@@ -42,11 +42,11 @@ def fetch_data_from_postgres(**context):
     print(df_dict)
     
     # Push JSON data to XCom
-    context['ti'].xcom_push(key='dataframe', value=df_dict)
+    kwargs['ti'].xcom_push(key='dataframe', value=df_dict)
 
 
 #def process_data_from_xcom(task_instance, **kwargs):
-def process_data_from_xcom(ti):
+def process_data_from_xcom(task_instance_key_str, execution_date):
     #from sklearn.model_selection import train_test_split
     
     #import statsmodels.api as sm
@@ -55,18 +55,18 @@ def process_data_from_xcom(ti):
     
     # xcom으로 postgres table pull
     import pandas as pd
-    #from airflow.models import TaskInstance
-    #from airflow.utils.db import provide_session
+    from airflow.models import TaskInstance
+    from airflow.utils.db import provide_session
 
     # df_dict = task_instance.xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe')
     # df_init = pd.DataFrame(df_dict)
     # print(df_init)
 
 
-    #@provide_session
-    #def get_xcom_value(task_instance, session=None):
-    #   ti = TaskInstance(**task_instance)
-    #   return ti.xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe', session=session)
+    @provide_session
+    def get_xcom_value(task_instance_key_str, session=None):
+       ti = TaskInstance(task_instance_key_str, session=session)
+       return ti.xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe')
     
     #task_instance = kwargs['task_instance']
     #execution_date = kwargs['execution_date']
@@ -77,7 +77,7 @@ def process_data_from_xcom(ti):
     #     'execution_date': execution_date,
     # }
 
-    df_dict = ti.xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe')
+    df_dict = get_xcom_value(task_instance_key_str)
     df_init = pd.DataFrame(df_dict)
     print(df_init)
 
@@ -159,7 +159,7 @@ reprocess_data = PythonVirtualenvOperator(
     requirements=["pandas","apache-airflow"], # 가상환경에서 필요한 모든 패키지가 명시
     system_site_packages=False, # Airflow가 설치된 시스템 사이트 패키지를 사용하도록 설정
     #provide_context=True,
-    op_args=['{{ task_instance }}'],
+    op_args=['{{ task_instance_key_str }}', '{{ execution_date }}'],
     # op_kwargs={
     #     'task_instance': '{{ task_instance_key_str }}',
     #     'execution_date': '{{ execution_date }}',
