@@ -80,9 +80,6 @@ def process_data_from_xcom(**kwargs):
     #     'execution_date': execution_date,
     # }
 
-    df_dict = get_xcom_value(task_instance_key_str)
-    df_init = pd.DataFrame(df_dict)
-
     #print(df_init)
 
     #df_dict = get_xcom_value(task_instance_dict)
