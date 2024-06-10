@@ -54,6 +54,7 @@ def process_data_from_xcom(**kwargs):
     #from statsmodels.tsa.statespace.sarimax import SARIMAX
     
     # xcom으로 postgres table pull
+    import pickle
     import pandas as pd
     from airflow.models import TaskInstance
 
