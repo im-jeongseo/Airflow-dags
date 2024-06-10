@@ -6,24 +6,17 @@ from airflow.operators.python_operator import PythonVirtualenvOperator
 from airflow.utils.dates import days_ago
 
 from sqlalchemy import create_engine
-
-#import json
 from pandas import json_normalize
 import pandas as pd
 import numpy as np
-from datetime import datetime
-
 
 from datetime import datetime, timedelta
 import itertools
 
 import warnings
 warnings.filterwarnings('ignore')
-
 import os
 
-import requests
-from bs4 import BeautifulSoup as bs
 
 def fetch_data_from_postgres(**context):
     # Initialize PostgresHook
@@ -162,8 +155,8 @@ reprocess_data = PythonVirtualenvOperator(
     task_id='process_data_from_xcom',
     python_callable=process_data_from_xcom,
     #requirements=["scikit-learn","statsmodels","apache-airflow"],
-    requirements=["apache-airflow","pandas"],
-    system_site_packages=False,
+    requirements=["pandas","apache-airflow"], # 가상환경에서 필요한 모든 패키지가 명시
+    system_site_packages=False, # Airflow가 설치된 시스템 사이트 패키지를 사용하도록 설정
     #provide_context=True,
     op_args=['{{ task_instance }}'],
     # op_kwargs={
