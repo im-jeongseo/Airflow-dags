@@ -35,18 +35,18 @@ def fetch_data_from_postgres(**kwargs):
     
     # Convert fetched data to DataFrame
     df = pd.DataFrame(rows, columns=colnames)
-
+    print(df)
+    
     # Convert DataFrame to JSON string
     #df_json = df.to_json(orient='records')
     df_dict = df.to_dict(orient='records')
-    print(df_dict)
     
     # Push JSON data to XCom
     kwargs['ti'].xcom_push(key='dataframe', value=df_dict)
 
 
 #def process_data_from_xcom(task_instance, **kwargs):
-def process_data_from_xcom(task_instance_key_str, execution_date):
+def process_data_from_xcom(**kwargs):
     #from sklearn.model_selection import train_test_split
     
     #import statsmodels.api as sm
@@ -56,26 +56,20 @@ def process_data_from_xcom(task_instance_key_str, execution_date):
     # xcom으로 postgres table pull
     import pandas as pd
     from airflow.models import TaskInstance
-    from airflow.utils.db import provide_session
-    from airflow.settings import configure_orm, initialize
-    import logging
 
     # df_dict = task_instance.xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe')
     # df_init = pd.DataFrame(df_dict)
     # print(df_init)
 
     # Initialize Airflow configuration
-    initialize()
-    configure_orm()
+
 
     # Configure logging
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
 
-    @provide_session
-    def get_xcom_value(task_instance_key_str, session=None):
-       ti = TaskInstance(task_instance_key_str, session=session)
-       return ti.xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe')
+    #@provide_session
+    #def get_xcom_value(task_instance_key_str, session=None):
+    #   ti = TaskInstance(task_instance_key_str, session=session)
+    #   return ti.xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe')
     
     #task_instance = kwargs['task_instance']
     #execution_date = kwargs['execution_date']
@@ -89,13 +83,14 @@ def process_data_from_xcom(task_instance_key_str, execution_date):
     df_dict = get_xcom_value(task_instance_key_str)
     df_init = pd.DataFrame(df_dict)
 
-    logger.info("DataFrame received from XCom:")
-    logger.info(df_init)
-
     #print(df_init)
 
     #df_dict = get_xcom_value(task_instance_dict)
     
+    ti = kwargs['ti']
+    df_dict = ti.xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe')
+    df = pd.DataFrame(df_dict)
+    print(df)
 
     ## Get JSON data from XCom
     #df_json = context['task_instance'].xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe_json')
@@ -103,7 +98,7 @@ def process_data_from_xcom(task_instance_key_str, execution_date):
     ## Convert JSON to DataFrame
     #df_init = pd.read_json(df_json, orient='records')
     
-    df = df_init.set_index(keys='date')
+    #df = df_init.set_index(keys='date')
     #print(df)
     
     # train,test split
@@ -169,14 +164,10 @@ reprocess_data = PythonVirtualenvOperator(
     task_id='process_data_from_xcom',
     python_callable=process_data_from_xcom,
     #requirements=["scikit-learn","statsmodels","apache-airflow"],
-    requirements=["logging","pandas","apache-airflow"], # 가상환경에서 필요한 모든 패키지가 명시
+    requirements=["pandas"], # 가상환경에서 필요한 모든 패키지가 명시
     system_site_packages=False, # Airflow가 설치된 시스템 사이트 패키지를 사용하도록 설정
-    #provide_context=True,
+    provide_context=True, # To pass the context variables
     #op_args=['{{ task_instance_key_str }}', '{{ execution_date }}'],
-    op_kwargs={
-         'task_instance_key_str': '{{ task_instance_key_str }}',
-         'execution_date': '{{ execution_date }}',
-     },
     dag=dag,
 )
 
