@@ -39,6 +39,7 @@ def fetch_data_from_postgres(**context):
     # Convert DataFrame to JSON string
     #df_json = df.to_json(orient='records')
     df_dict = df.to_dict(orient='records')
+    print(df_dict)
     
     # Push JSON data to XCom
     context['ti'].xcom_push(key='dataframe', value=df_dict)
