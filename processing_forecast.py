@@ -57,11 +57,20 @@ def process_data_from_xcom(task_instance_key_str, execution_date):
     import pandas as pd
     from airflow.models import TaskInstance
     from airflow.utils.db import provide_session
+    from airflow.settings import configure_orm, initialize
+    import logging
 
     # df_dict = task_instance.xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe')
     # df_init = pd.DataFrame(df_dict)
     # print(df_init)
 
+    # Initialize Airflow configuration
+    initialize()
+    configure_orm()
+
+    # Configure logging
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
 
     @provide_session
     def get_xcom_value(task_instance_key_str, session=None):
@@ -79,7 +88,11 @@ def process_data_from_xcom(task_instance_key_str, execution_date):
 
     df_dict = get_xcom_value(task_instance_key_str)
     df_init = pd.DataFrame(df_dict)
-    print(df_init)
+
+    logger.info("DataFrame received from XCom:")
+    logger.info(df_init)
+
+    #print(df_init)
 
     #df_dict = get_xcom_value(task_instance_dict)
     
@@ -91,7 +104,7 @@ def process_data_from_xcom(task_instance_key_str, execution_date):
     #df_init = pd.read_json(df_json, orient='records')
     
     df = df_init.set_index(keys='date')
-    print(df)
+    #print(df)
     
     # train,test split
     #train_data, test_data = train_test_split(df, test_size=0.3, shuffle=False)
