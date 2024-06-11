@@ -9,6 +9,7 @@ from sqlalchemy import create_engine
 import pandas as pd
 from pandas import json_normalize
 import numpy as np
+import json
 
 from datetime import datetime, timedelta
 import itertools
@@ -47,7 +48,6 @@ def fetch_data_from_postgres(**context):
 
 
 def process_data_from_xcom(**context):
-    import pandas as pd
     print("=======start=======")
     # Get JSON data from XCom
     df_json = context['task_instance'].xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe_json')
