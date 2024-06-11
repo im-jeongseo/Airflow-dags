@@ -59,63 +59,21 @@ def process_data_from_xcom(**context):
     print("DataFrame received from XCom:")
     print(df_init)
     
-    #from sklearn.model_selection import train_test_split
+    from sklearn.model_selection import train_test_split
     
     #import statsmodels.api as sm
     #from statsmodels.tsa.arima.model import ARIMA
     #from statsmodels.tsa.statespace.sarimax import SARIMAX
-    
-    # xcom으로 postgres table pull
-    #import pandas as pd
-    #from airflow.models import TaskInstance
 
-    # df_dict = task_instance.xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe')
-    # df_init = pd.DataFrame(df_dict)
-    # print(df_init)
-
-    # Initialize Airflow configuration
-
-
-    # Configure logging
-
-    #@provide_session
-    #def get_xcom_value(task_instance_key_str, session=None):
-    #   ti = TaskInstance(task_instance_key_str, session=session)
-    #   return ti.xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe')
-    
-    #task_instance = kwargs['task_instance']
-    #execution_date = kwargs['execution_date']
-
-    # task_instance_dict = {
-    #     'dag_id': 'processing_forecast',
-    #     'task_id': 'fetch_data_from_postgres',
-    #     'execution_date': execution_date,
-    # }
-
-    #print(df_init)
-
-    #df_dict = get_xcom_value(task_instance_dict)
-    #ti = context['ti']
-    #df_dict = ti.xcom_pull(task_ids=task_ids, key='dataframe')
-    
-    #if not df_dict:
-    #    raise ValueError("No data retrieved from XCom")
-
-    ## Get JSON data from XCom
-    #df_json = context['task_instance'].xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe_json')
-    
-    ## Convert JSON to DataFrame
-    #df_init = pd.read_json(df_json, orient='records')
-    
     df = df_init.set_index(keys='date')
     print(df)
     
     # train,test split
-    #train_data, test_data = train_test_split(df, test_size=0.3, shuffle=False)
-    #dt=datetime.datetime.today()
-    
+    train_data, test_data = train_test_split(df, test_size=0.3, shuffle=False)
+    print('====================')
+    print(len(train_data))
+    print(len(test_data))
     # 예측을 위한 date index 생성
-
     # import datetime
     # dt=datetime.datetime.today()
 
@@ -172,11 +130,12 @@ fetch_data = PythonOperator(
     dag=dag,
 )
 
-#install_dependencies = BashOperator(
-#    task_id='install_dependencies',
-#    bash_command=f"{sys.executable} -m pip install pandas",
-#    dag=dag,
-#)
+install_dependencies = BashOperator(
+    task_id='install_dependencies',
+    bash_command=f"{sys.executable} -m pip install scikit-learn",
+    bash_command=f"{sys.executable} -m pip install statsmodels",
+    dag=dag,
+)
 
 reprocess_data = PythonOperator(
     task_id='process_data_from_xcom',
@@ -185,7 +144,7 @@ reprocess_data = PythonOperator(
     dag=dag,
 )
 
-fetch_data >> reprocess_data  # Set task dependencies
+fetch_data >> install_dependencies >> reprocess_data  # Set task dependencies
 
 
 
