@@ -39,13 +39,12 @@ def fetch_data_from_postgres(ti):
     # Convert DataFrame to JSON string
     #df_json = df.to_json(orient='records')
     df_dict = df.to_dict(orient='records')
-    
     # Push JSON data to XCom
     ti.xcom_push(key='dataframe', value=df_dict)
 
 
 #def process_data_from_xcom(task_instance, **kwargs):
-def process_data_from_xcom(**kwargs):
+def process_data_from_xcom(task_ids,**context):
     print("=======start=======")
     #from sklearn.model_selection import train_test_split
     
@@ -83,8 +82,8 @@ def process_data_from_xcom(**kwargs):
     #print(df_init)
 
     #df_dict = get_xcom_value(task_instance_dict)
-    ti = kwargs['ti']
-    df_dict = ti.xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe')
+    ti = context['ti']
+    df_dict = ti.xcom_pull(task_ids=task_ids, key='dataframe')
     
     if not df_dict:
         raise ValueError("No data retrieved from XCom")
@@ -169,10 +168,11 @@ reprocess_data = PythonVirtualenvOperator(
     task_id='process_data_from_xcom',
     python_callable=process_data_from_xcom,
     #requirements=["scikit-learn","statsmodels","apache-airflow"],
-    requirements=["pandas","apache-airflow"], # 가상환경에서 필요한 모든 패키지가 명시
+    requirements=["pandas"], # 가상환경에서 필요한 모든 패키지가 명시
     system_site_packages=False, # Airflow가 설치된 시스템 사이트 패키지를 사용하도록 설정
-    #provide_context=True, # To pass the context variables
-    op_kwargs={'ti': '{{ ti }}'},  # Pass task instance through op_kwargs
+    #op_kwargs={'ti': '{{ ti }}'},  # Pass task instance through op_kwargs
+    op_args=['fetch_data_from_postgres'],  # Pass task_id to fetch XCom data
+    provide_context=True, # To pass the context variables
     #op_args=['{{ ti }}'],
     #op_args=['{{ task_instance_key_str }}', '{{ execution_date }}'],
     dag=dag,
