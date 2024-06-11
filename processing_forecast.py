@@ -83,7 +83,11 @@ def process_data_from_xcom(ti):
     #df_dict = get_xcom_value(task_instance_dict)
     
     df_dict = ti.xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe')
+    if not df_dict:
+        raise ValueError("No data retrieved from XCom")
+    
     df = pd.DataFrame(df_dict)
+
     print(df)
 
     ## Get JSON data from XCom
@@ -164,8 +168,8 @@ reprocess_data = PythonVirtualenvOperator(
     #requirements=["scikit-learn","statsmodels","apache-airflow"],
     requirements=["pandas"], # 가상환경에서 필요한 모든 패키지가 명시
     system_site_packages=False, # Airflow가 설치된 시스템 사이트 패키지를 사용하도록 설정
-    #provide_context=True, # To pass the context variables
-    op_args=['{{ ti }}'],
+    provide_context=True, # To pass the context variables
+    #op_args=['{{ ti }}'],
     #op_args=['{{ task_instance_key_str }}', '{{ execution_date }}'],
     dag=dag,
 )
