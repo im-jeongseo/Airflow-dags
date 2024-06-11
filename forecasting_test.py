@@ -47,6 +47,7 @@ def fetch_data_from_postgres(**context):
 
 
 def process_data_from_xcom(**context):
+    import pandas as pd
     print("=======start=======")
     # Get JSON data from XCom
     df_json = context['task_instance'].xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe_json')
@@ -65,8 +66,8 @@ def process_data_from_xcom(**context):
     #from statsmodels.tsa.statespace.sarimax import SARIMAX
     
     # xcom으로 postgres table pull
-    import pandas as pd
-    from airflow.models import TaskInstance
+    #import pandas as pd
+    #from airflow.models import TaskInstance
 
     # df_dict = task_instance.xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe')
     # df_init = pd.DataFrame(df_dict)
