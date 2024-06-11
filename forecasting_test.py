@@ -171,11 +171,11 @@ fetch_data = PythonOperator(
     dag=dag,
 )
 
-install_dependencies = BashOperator(
-    task_id='install_dependencies',
-    bash_command=f"{sys.executable} -m pip install pandas",
-    dag=dag,
-)
+#install_dependencies = BashOperator(
+#    task_id='install_dependencies',
+#    bash_command=f"{sys.executable} -m pip install pandas",
+#    dag=dag,
+#)
 
 reprocess_data = PythonOperator(
     task_id='process_data_from_xcom',
