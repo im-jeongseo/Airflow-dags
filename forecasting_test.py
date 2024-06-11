@@ -159,7 +159,7 @@ default_args = {
 }
 
 dag = DAG(
-    'processing_forecast',
+    'forecasting_data',
     default_args=default_args,
     schedule_interval=None,
 )
