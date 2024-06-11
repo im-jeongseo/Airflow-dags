@@ -99,10 +99,6 @@ def process_data_from_xcom(**context):
     
     #if not df_dict:
     #    raise ValueError("No data retrieved from XCom")
-    
-    df = pd.DataFrame(df_dict)
-
-    print(df)
 
     ## Get JSON data from XCom
     #df_json = context['task_instance'].xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe_json')
