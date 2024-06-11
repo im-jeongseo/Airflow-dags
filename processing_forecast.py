@@ -46,6 +46,7 @@ def fetch_data_from_postgres(ti):
 
 #def process_data_from_xcom(task_instance, **kwargs):
 def process_data_from_xcom(ti):
+    print("=======start=======")
     #from sklearn.model_selection import train_test_split
     
     #import statsmodels.api as sm
