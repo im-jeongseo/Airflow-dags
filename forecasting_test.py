@@ -63,7 +63,7 @@ def process_data_from_xcom(**context):
     print("DataFrame received from XCom:")
     print(df_init)
     
-    #from sklearn.model_selection import train_test_split
+    from sklearn.model_selection import train_test_split
     
     #import statsmodels.api as sm
     #from statsmodels.tsa.arima.model import ARIMA
