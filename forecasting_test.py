@@ -10,6 +10,7 @@ import pandas as pd
 from pandas import json_normalize
 import numpy as np
 import json
+import subprocess
 
 from datetime import datetime, timedelta
 import itertools
@@ -19,6 +20,9 @@ warnings.filterwarnings('ignore')
 
 import os
 import sys
+
+def install_dependencies():
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'scikit-learn'])
 
 
 def fetch_data_from_postgres(**context):
@@ -59,7 +63,7 @@ def process_data_from_xcom(**context):
     print("DataFrame received from XCom:")
     print(df_init)
     
-    from sklearn.model_selection import train_test_split
+    #from sklearn.model_selection import train_test_split
     
     #import statsmodels.api as sm
     #from statsmodels.tsa.arima.model import ARIMA
@@ -130,10 +134,9 @@ fetch_data = PythonOperator(
     dag=dag,
 )
 
-install_dependencies = BashOperator(
+install_task = PythonOperator(
     task_id='install_dependencies',
-    bash_command=f"{sys.executable} -m pip install scikit-learn",
-    #bash_command=f"{sys.executable} -m pip install statsmodels",
+    python_callable=install_dependencies,
     dag=dag,
 )
 
@@ -144,7 +147,7 @@ reprocess_data = PythonOperator(
     dag=dag,
 )
 
-fetch_data >> install_dependencies >> reprocess_data  # Set task dependencies
+fetch_data >> install_task >> reprocess_data  # Set task dependencies
 
 
 
