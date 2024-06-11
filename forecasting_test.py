@@ -133,7 +133,7 @@ fetch_data = PythonOperator(
 install_dependencies = BashOperator(
     task_id='install_dependencies',
     bash_command=f"{sys.executable} -m pip install scikit-learn",
-    bash_command=f"{sys.executable} -m pip install statsmodels",
+    #bash_command=f"{sys.executable} -m pip install statsmodels",
     dag=dag,
 )
 
