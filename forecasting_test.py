@@ -1,4 +1,5 @@
 from airflow import DAG
+from airflow.operators.bash import BashOperator
 from airflow.operators.python_operator import PythonOperator , PythonVirtualenvOperator
 from airflow.hooks.postgres_hook import PostgresHook
 from airflow.providers.postgres.operators.postgres import PostgresOperator
@@ -14,10 +15,12 @@ import itertools
 
 import warnings
 warnings.filterwarnings('ignore')
+
 import os
+import sys
 
 
-def fetch_data_from_postgres(ti):
+def fetch_data_from_postgres(**context):
     # Initialize PostgresHook
     postgres_hook = PostgresHook(postgres_conn_id='postgres_stock')
     
@@ -37,15 +40,24 @@ def fetch_data_from_postgres(ti):
     print(df)
     
     # Convert DataFrame to JSON string
-    #df_json = df.to_json(orient='records')
-    df_dict = df.to_dict(orient='records')
+    df_json = df.to_json(orient='records')
+    
     # Push JSON data to XCom
-    ti.xcom_push(key='dataframe', value=df_dict)
+    context['task_instance'].xcom_push(key='dataframe_json', value=df_json)
 
 
-#def process_data_from_xcom(task_instance, **kwargs):
-def process_data_from_xcom(task_ids,**context):
+def process_data_from_xcom(**context):
     print("=======start=======")
+    # Get JSON data from XCom
+    df_json = context['task_instance'].xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe_json')
+    
+    # Convert JSON to DataFrame
+    df_init = pd.read_json(df_json, orient='records')
+    
+    # Process the DataFrame as needed
+    print("DataFrame received from XCom:")
+    print(df_init)
+    
     #from sklearn.model_selection import train_test_split
     
     #import statsmodels.api as sm
@@ -82,11 +94,11 @@ def process_data_from_xcom(task_ids,**context):
     #print(df_init)
 
     #df_dict = get_xcom_value(task_instance_dict)
-    ti = context['ti']
-    df_dict = ti.xcom_pull(task_ids=task_ids, key='dataframe')
+    #ti = context['ti']
+    #df_dict = ti.xcom_pull(task_ids=task_ids, key='dataframe')
     
-    if not df_dict:
-        raise ValueError("No data retrieved from XCom")
+    #if not df_dict:
+    #    raise ValueError("No data retrieved from XCom")
     
     df = pd.DataFrame(df_dict)
 
@@ -98,8 +110,8 @@ def process_data_from_xcom(task_ids,**context):
     ## Convert JSON to DataFrame
     #df_init = pd.read_json(df_json, orient='records')
     
-    #df = df_init.set_index(keys='date')
-    #print(df)
+    df = df_init.set_index(keys='date')
+    print(df)
     
     # train,test split
     #train_data, test_data = train_test_split(df, test_size=0.3, shuffle=False)
@@ -163,24 +175,18 @@ fetch_data = PythonOperator(
     dag=dag,
 )
 
-
-
-reprocess_data = PythonVirtualenvOperator(
-    task_id='process_data_from_xcom',
-    python_callable=process_data_from_xcom,
-    #requirements=["scikit-learn","statsmodels","apache-airflow"],
-    requirements=["pandas","apache-airflow"], # 가상환경에서 필요한 모든 패키지가 명시
-    system_site_packages=False, # Airflow가 설치된 시스템 사이트 패키지를 사용하도록 설정
-    #op_kwargs={'ti': '{{ ti }}'},  # Pass task instance through op_kwargs
-    op_args=['fetch_data_from_postgres'],  # Pass task_id to fetch XCom data
-    provide_context=True, # To pass the context variables
-    #op_args=['{{ ti }}'],
-    #op_args=['{{ task_instance_key_str }}', '{{ execution_date }}'],
+install_dependencies = BashOperator(
+    task_id='install_dependencies',
+    bash_command=f"{sys.executable} -m pip install pandas",
     dag=dag,
 )
 
-
-
+reprocess_data = PythonOperator(
+    task_id='process_data_from_xcom',
+    python_callable=process_data_from_xcom,
+    provide_context=True,
+    dag=dag,
+)
 
 fetch_data >> reprocess_data  # Set task dependencies
 
