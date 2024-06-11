@@ -1,8 +1,8 @@
 from airflow import DAG
+from airflow.operators.python_operator import PythonOperator
+from airflow.operators.python_virtualenv import PythonVirtualenvOperator
 from airflow.hooks.postgres_hook import PostgresHook
 from airflow.providers.postgres.operators.postgres import PostgresOperator
-from airflow.operators.python import PythonOperator
-from airflow.operators.python_operator import PythonVirtualenvOperator
 from airflow.utils.dates import days_ago
 
 from sqlalchemy import create_engine
