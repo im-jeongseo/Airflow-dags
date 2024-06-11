@@ -18,7 +18,7 @@ warnings.filterwarnings('ignore')
 import os
 
 
-def fetch_data_from_postgres(**kwargs):
+def fetch_data_from_postgres(ti):
     # Initialize PostgresHook
     postgres_hook = PostgresHook(postgres_conn_id='postgres_stock')
     
@@ -42,11 +42,11 @@ def fetch_data_from_postgres(**kwargs):
     df_dict = df.to_dict(orient='records')
     
     # Push JSON data to XCom
-    kwargs['ti'].xcom_push(key='dataframe', value=df_dict)
+    ti.xcom_push(key='dataframe', value=df_dict)
 
 
 #def process_data_from_xcom(task_instance, **kwargs):
-def process_data_from_xcom(**kwargs):
+def process_data_from_xcom(ti):
     #from sklearn.model_selection import train_test_split
     
     #import statsmodels.api as sm
@@ -54,9 +54,7 @@ def process_data_from_xcom(**kwargs):
     #from statsmodels.tsa.statespace.sarimax import SARIMAX
     
     # xcom으로 postgres table pull
-    import pickle
     import pandas as pd
-    from airflow.models import TaskInstance
 
     # df_dict = task_instance.xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe')
     # df_init = pd.DataFrame(df_dict)
@@ -85,7 +83,6 @@ def process_data_from_xcom(**kwargs):
 
     #df_dict = get_xcom_value(task_instance_dict)
     
-    ti = kwargs['ti']
     df_dict = ti.xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe')
     df = pd.DataFrame(df_dict)
     print(df)
@@ -144,10 +141,14 @@ def process_data_from_xcom(**kwargs):
     
     # print(pred_val)
 
+default_args = {
+    'start_date': days_ago(1),
+}
+
 
 dag = DAG(
     'processing_forecast',
-    default_args={'start_date': days_ago(1)},
+    default_args=default_args,
     schedule_interval=None,
 )
 
@@ -162,9 +163,10 @@ reprocess_data = PythonVirtualenvOperator(
     task_id='process_data_from_xcom',
     python_callable=process_data_from_xcom,
     #requirements=["scikit-learn","statsmodels","apache-airflow"],
-    requirements=["pickle5","pandas","apache-airflow"], # 가상환경에서 필요한 모든 패키지가 명시
+    requirements=["pandas"], # 가상환경에서 필요한 모든 패키지가 명시
     system_site_packages=False, # Airflow가 설치된 시스템 사이트 패키지를 사용하도록 설정
-    provide_context=True, # To pass the context variables
+    #provide_context=True, # To pass the context variables
+    op_args=['{{ ti }}'],
     #op_args=['{{ task_instance_key_str }}', '{{ execution_date }}'],
     dag=dag,
 )
