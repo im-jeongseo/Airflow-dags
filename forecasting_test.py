@@ -68,7 +68,7 @@ def process_data_from_xcom(**context):
     import datetime
     import statsmodels.api as sm
     from statsmodels.tsa.arima.model import ARIMA
-    #from statsmodels.tsa.statespace.sarimax import SARIMAX
+    from statsmodels.tsa.statespace.sarimax import SARIMAX
     import itertools
 
     df = df_init.set_index(keys='date')
@@ -96,19 +96,36 @@ def process_data_from_xcom(**context):
     d = range(1, 3)
     q = range(0, 2)
     pdq = list(itertools.product(p, d, q))
+    seasonal_pdq = [(x[0], x[1], x[2], 3) for x in pdq]
 
     AIC = []
+    params = []
+    #for i in pdq :
+    #    model = ARIMA(train_data['close'].values, order=(i))
+    #    model_fit = model.fit()
+    #    print(f'ARIMA pdq : {i} >> AIC : {round(model_fit.aic, 2)}')
+    #    AIC.append(round(model_fit.aic, 2))
     for i in pdq :
-        model = ARIMA(train_data['close'].values, order=(i))
-        model_fit = model.fit()
-        print(f'ARIMA pdq : {i} >> AIC : {round(model_fit.aic, 2)}')
-        AIC.append(round(model_fit.aic, 2))
+        for j in seasonal_pdq :
+            try : 
+                model = SARIMAX(train_data['Close'].values, order=(i), seasonal_order = (j))
+                model_fit = model.fit()
+                print(f'SARIMA : {i},{j} >> AIC : {round(model_fit.aic, 2)}')
+                AIC.append(round(model_fit.aic, 2))
+                params.append((i, j))
+                
+            except Exception as e:
+                print(e)
+                continue
 
-    optim = [(pdq[i], j) for i, j in enumerate(AIC) if j == min(AIC)]
+
+    #optim = [(pdq[i], j) for i, j in enumerate(AIC) if j == min(AIC)]
+    optim = [(params[i], j) for i, j in enumerate(AIC) if j == min(AIC)]
     print("========== optim ==========")
     print(optim)
 
-    model = ARIMA(train_data['close'].values, order=optim[0][0])
+    #model = ARIMA(train_data['close'].values, order=optim[0][0])
+    model = SARIMAX(train_data['Close'].values, order=optim[0][0][0], seasonal_order=optim[0][0][1])
     model_fit = model.fit()    
 
     # 예측값 생성
@@ -121,6 +138,34 @@ def process_data_from_xcom(**context):
         pred_index.append(i)
     
     print(pred_val)
+
+
+    print("========== result ==========")
+    df_forecast = pd.DataFrame(zip(list(date_idx), list(pred_val)))
+    df_forecast.columns = ['date', 'forecast']
+    df_result = pd.concat([df_init, df_forecast], ignore_index=True)
+    print(df_result)
+
+    return df_result
+
+
+# def insert_dataframe_to_postgres():
+#     # 예제 DataFrame 생성
+
+#     data = {'column1': [1, 2, 3], 'column2': ['a', 'b', 'c']}
+#     df = pd.DataFrame(data)
+
+#     # PostgreSQL 연결 정보 가져오기
+#     connection = BaseHook.get_connection('your_postgres_conn_id')
+#     conn_str = f"postgresql+psycopg2://{connection.login}:{connection.password}@{connection.host}:{connection.port}/{connection.schema}"
+
+#     # SQLAlchemy 엔진 생성
+#     engine = create_engine(conn_str)
+
+#     # DataFrame을 PostgreSQL 테이블에 삽입
+#     df.to_sql('your_table_name', engine, if_exists='append', index=False)
+
+
 
 default_args = {
     'start_date': days_ago(1),
@@ -145,6 +190,8 @@ reprocess_data = PythonOperator(
     provide_context=True,
     dag=dag,
 )
+
+# insert_data = 
 
 fetch_data >> reprocess_data  # Set task dependencies
 
