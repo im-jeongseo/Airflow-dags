@@ -34,7 +34,6 @@ def fetch_data_from_postgres(**context):
     
     # Convert fetched data to DataFrame
     df = pd.DataFrame(rows, columns=colnames)
-    df['date'] = pd.to_datetime((df['date']/1000).astype('int'), unit='s')
     print(df)
     
     # Convert DataFrame to JSON string
@@ -56,6 +55,7 @@ def process_data_from_xcom(**context):
     
     # Convert JSON to DataFrame
     df_init = pd.read_json(df_json, orient='records')
+    df_init['date'] = pd.to_datetime((df_init['date']/1000).astype('int'), unit='s')
     
     # Process the DataFrame as needed  
     from sklearn.model_selection import train_test_split
