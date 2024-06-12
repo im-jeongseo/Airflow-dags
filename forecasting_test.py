@@ -151,10 +151,15 @@ def result_push(**context):
         raise ValueError("No JSON data received from XCom")
 
     df = pd.read_json(df_json, orient='records')
+    df = pd.to_datetime(df['date'])
     print(df)
 
     # Create a SQLAlchemy engine to connect to PostgreSQL
     engine = create_engine('postgresql://postgres:postgres@192.168.168.133:30032/stock')
+
+    # PostgreSQL 테이블 데이터 삭제
+    with engine.connect() as conn:
+        conn.execute(text("DELETE FROM tb_stock_result"))
 
     # Replace 'table_name' with your desired table name
     df.to_sql('tb_stock_result', engine, if_exists='append', index=False)
@@ -177,13 +182,13 @@ creating_table = PostgresOperator(
     sql="""
         CREATE TABLE IF NOT EXISTS tb_stock_result( 
             date DATE,
-            open INT,
-            high INT,
-            low INT,
-            close INT,
-            adjclose INT,
+            open FLOAT,
+            high FLOAT,
+            low FLOAT,
+            close FLOAT,
+            adjclose FLOAT,
             volume INT,
-            forecast INT
+            forecast FLOAT
         );
     """,
 )
