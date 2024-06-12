@@ -136,7 +136,7 @@ def process_data_from_xcom(**context):
     df_forecast = pd.DataFrame(zip(list(date_idx), list(pred_val)))
     df_forecast.columns = ['date', 'forecast']
 
-    df_init['date'] = pd.to_datetime((df_init['date']/1000).astype('int'), unit='s')
+    #df_init['date'] = pd.to_datetime((df_init['date']/1000).astype('int'), unit='s')
     df_result = pd.concat([df_init, df_forecast], ignore_index=True)
     print(df_result)
 
@@ -150,7 +150,11 @@ def result_push(**context):
     df_json = context['ti'].xcom_pull(task_ids='forecast_data_from_xcom', key='dataframe_json')
     df = pd.read_json(df_json, orient='records')
 
-    # df['date'] = pd.to_datetime((df['date']/1000).astype('int'), unit='s')
+    for i in range(len(tedfst_df)):
+        if type(df['date'][i]) is int:
+            df['date'][i] = pd.to_datetime((df['date'][i]/1000), unit='s')
+        else:
+            pass 
     print(df)
 
     # Create a SQLAlchemy engine to connect to PostgreSQL
