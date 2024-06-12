@@ -53,9 +53,9 @@ def install_lib(package, upgrade=True):
 
 def kafka_producer():
     # Kafka Producer 설정
-    producer = KafkaProducer(bootstrap_servers=['192.168.168.133:31360', '192.168.168.133:32398', '192.168.168.133:30052'],
-                            value_serializer=lambda v: json.dumps(v, ensure_ascii=False).encode('UTF-8'),
-                            key_serializer=lambda v: json.dumps(v, ensure_ascii=False).encode('UTF-8'))
+    # producer = KafkaProducer(bootstrap_servers=['192.168.168.133:31360', '192.168.168.133:32398', '192.168.168.133:30052'],
+    #                        value_serializer=lambda v: json.dumps(v, ensure_ascii=False).encode('UTF-8'),
+    #                         key_serializer=lambda v: json.dumps(v, ensure_ascii=False).encode('UTF-8'))
 
     # 웹 크롤링
     url = 'https://finance.naver.com/sise/sise_market_sum.naver'
@@ -91,42 +91,42 @@ def kafka_producer():
     print(price_message)
 
     # 데이터를 Kafka 토픽으로 보내기
-    producer.send('crawling-test', key='samsung_price', value=price_message)
-    producer.flush()
+    # producer.send('crawling-test', key='samsung_price', value=price_message)
+    # producer.flush()
 
 
 
 def kafka_consumer():
-    consumer = KafkaConsumer('crawling-test', 
-                            bootstrap_servers=['192.168.168.133:31360', '192.168.168.133:32398', '192.168.168.133:30052'],
-                            enable_auto_commit=True,
-                            auto_offset_reset='earliest')
+    # consumer = KafkaConsumer('crawling-test', 
+    #                         bootstrap_servers=['192.168.168.133:31360', '192.168.168.133:32398', '192.168.168.133:30052'],
+    #                         enable_auto_commit=True,
+    #                         auto_offset_reset='earliest')
     conn = psycopg2.connect(dbname='stock', user='postgres', password='postgres', host='192.168.168.133', port=30032)
     cursor = conn.cursor()
 
-    for message in consumer:
-        print(message.value)
-        m = eval(message.value)
-        volume = int(m['volume'].replace(',', ''))
-        Number_of_listed_shares = int(m['Number_of_listed_shares'].replace(',', ''))
-        fluctuation_rate = m['fluctuation_rate']
-        ROE = float(m['ROE'].replace(',', ''))
-        PER = float(m['PER'].replace(',', ''))
-        Current = int(m['Current'].replace(',', ''))
-        Item = m['Item']
-        the_proportion_of_foreigners = float(m['the_proportion_of_foreigners'].replace(',', ''))
-        diff = m['diff']
-        face_value = int(m['face_value'].replace(',', ''))
-        market_capitalization = int(m['market_capitalization'].replace(',', ''))
-        date = m['date']
+    # for message in consumer:
+    #     print(message.value)
+    #     m = eval(message.value)
+    #     volume = int(m['volume'].replace(',', ''))
+    #     Number_of_listed_shares = int(m['Number_of_listed_shares'].replace(',', ''))
+    #     fluctuation_rate = m['fluctuation_rate']
+    #     ROE = float(m['ROE'].replace(',', ''))
+    #     PER = float(m['PER'].replace(',', ''))
+    #     Current = int(m['Current'].replace(',', ''))
+    #     Item = m['Item']
+    #     the_proportion_of_foreigners = float(m['the_proportion_of_foreigners'].replace(',', ''))
+    #     diff = m['diff']
+    #     face_value = int(m['face_value'].replace(',', ''))
+    #     market_capitalization = int(m['market_capitalization'].replace(',', ''))
+    #     date = m['date']
 
 
-        data = (Item, Current, diff, fluctuation_rate, face_value, market_capitalization, Number_of_listed_shares, the_proportion_of_foreigners, volume, PER, ROE, date)
-        cursor.execute("INSERT INTO crawling_test VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", data)
-        print("insert 완료")
-        cursor.execute("DELETE FROM crawling_test t1 WHERE EXISTS ( SELECT 1 FROM crawling_test t2 WHERE t1.date = t2.date AND t1.ctid > t2.ctid)")
-        print("중복제거 완료")
-        conn.commit()
+    #     data = (Item, Current, diff, fluctuation_rate, face_value, market_capitalization, Number_of_listed_shares, the_proportion_of_foreigners, volume, PER, ROE, date)
+    #     cursor.execute("INSERT INTO crawling_test VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", data)
+    #     print("insert 완료")
+    #     cursor.execute("DELETE FROM crawling_test t1 WHERE EXISTS ( SELECT 1 FROM crawling_test t2 WHERE t1.date = t2.date AND t1.ctid > t2.ctid)")
+    #     print("중복제거 완료")
+    #     conn.commit()
     cursor.close()
     conn.close()
 
