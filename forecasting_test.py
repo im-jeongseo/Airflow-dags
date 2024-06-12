@@ -151,6 +151,7 @@ def result_push(**context):
     ti = context['ti']
     df_json = ti.xcom_pull(task_ids='process_data_from_xcom', key='dataframe_json')
     df = pd.read_json(df_json)
+    print(df)
 
     # Create a SQLAlchemy engine to connect to PostgreSQL
     engine = create_engine('postgresql://postgres:postgres@192.168.168.133:30032/stock')
