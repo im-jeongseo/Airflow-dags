@@ -21,22 +21,22 @@ dag = DAG(
 )
 
 # 각 Python 스크립트를 실행하는 BashOperator
-# kafka_producer = BashOperator(
-#     task_id='kafka_producer',
-#     bash_command='python3 /opt/airflow/scripts/producer_batch.py',
-#     dag=dag,
-# )
-
-kafka_producer = KubernetesPodOperator(
+kafka_producer = BashOperator(
     task_id='kafka_producer',
-    name='kafka_producer',
-    namespace='default',
-    image='python:3.8-slim',
-    cmds=["python", "producer_batch.py"],
-    arguments=["print('start producer_batch.py')"],  # or use a script file
-    get_logs=True,
+    bash_command='python /opt/airflow/scripts/producer_batch.py',
     dag=dag,
 )
+
+# kafka_producer = KubernetesPodOperator(
+#     task_id='kafka_producer',
+#     name='kafka_producer',
+#     namespace='default',
+#     image='python:3.8-slim',
+#     cmds=["python", "producer_batch.py"],
+#     arguments=["print('start producer_batch.py')"],  # or use a script file
+#     get_logs=True,
+#     dag=dag,
+# )
 
 # kafka_consumer = BashOperator(
 #     task_id='kafka_consumer',
