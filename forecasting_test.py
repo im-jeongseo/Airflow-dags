@@ -150,7 +150,9 @@ def result_push(**context):
     print("========== xcom push ==========")
     df_json = context['ti'].xcom_pull(task_ids='forecast_data_from_xcom', key='dataframe_json')
     print(df_json)
-    df = pd.read_json(df_json, orient='records')
+
+    df = pd.read_json(df_json, orient='records',convert_dates=False)
+
     print(df)
 
     for i in range(len(df)):
