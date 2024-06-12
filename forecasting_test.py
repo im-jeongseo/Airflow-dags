@@ -141,6 +141,7 @@ def process_data_from_xcom(**context):
     print(df_result)
 
     df_json = df_result.to_json(orient='records')
+    print(df_json)
     context['ti'].xcom_push(key='dataframe_json', value=df_json)
 
 
@@ -148,7 +149,9 @@ def process_data_from_xcom(**context):
 def result_push(**context):
     print("========== xcom push ==========")
     df_json = context['ti'].xcom_pull(task_ids='forecast_data_from_xcom', key='dataframe_json')
+    print(df_json)
     df = pd.read_json(df_json, orient='records')
+    print(df)
 
     for i in range(len(df)):
         if type(df['date'][i]) is int:
