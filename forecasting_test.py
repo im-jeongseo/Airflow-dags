@@ -34,6 +34,7 @@ def fetch_data_from_postgres(**context):
     
     # Convert fetched data to DataFrame
     df = pd.DataFrame(rows, columns=colnames)
+    df['date'] = pd.to_datetime((df['date']/1000).astype('int'), unit='s')
     print(df)
     
     # Convert DataFrame to JSON string
@@ -146,12 +147,9 @@ def process_data_from_xcom(**context):
 def result_push(**context):
     print("========== xcom push ==========")
     df_json = context['ti'].xcom_pull(task_ids='forecast_data_from_xcom', key='dataframe_json')
-   
-    if df_json is None:
-        raise ValueError("No JSON data received from XCom")
-
     df = pd.read_json(df_json, orient='records')
-    df['date'] = pd.to_datetime(df['date'])
+
+    # df['date'] = pd.to_datetime((df['date']/1000).astype('int'), unit='s')
     print(df)
 
     # Create a SQLAlchemy engine to connect to PostgreSQL
