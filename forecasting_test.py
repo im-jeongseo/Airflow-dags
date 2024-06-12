@@ -99,7 +99,7 @@ def process_data_from_xcom(**context):
 
     AIC = []
     for i in pdq :
-        model = ARIMA(train_data['Close'].values, order=(i))
+        model = ARIMA(train_data['close'].values, order=(i))
         model_fit = model.fit()
         print(f'ARIMA pdq : {i} >> AIC : {round(model_fit.aic, 2)}')
         AIC.append(round(model_fit.aic, 2))
@@ -108,7 +108,7 @@ def process_data_from_xcom(**context):
     print("========== optim ==========")
     print(optim)
 
-    model = ARIMA(train_data['Close'].values, order=optim[0][0])
+    model = ARIMA(train_data['close'].values, order=optim[0][0])
     model_fit = model.fit()    
 
     # 예측값 생성
