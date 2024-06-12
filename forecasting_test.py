@@ -55,7 +55,6 @@ def process_data_from_xcom(**context):
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'statsmodels'])
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'more-itertools'])
 
-
     print("========== xcom pull ==========")
     # Get JSON data from XCom
     df_json = context['task_instance'].xcom_pull(task_ids='fetch_data_from_postgres', key='dataframe_json')
