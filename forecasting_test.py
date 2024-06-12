@@ -55,7 +55,6 @@ def process_data_from_xcom(**context):
     
     # Convert JSON to DataFrame
     df_init = pd.read_json(df_json, orient='records')
-    df_init['date'] = pd.to_datetime((df_init['date']/1000).astype('int'), unit='s')
     
     # Process the DataFrame as needed  
     from sklearn.model_selection import train_test_split
@@ -136,6 +135,8 @@ def process_data_from_xcom(**context):
     print("========== result ==========")
     df_forecast = pd.DataFrame(zip(list(date_idx), list(pred_val)))
     df_forecast.columns = ['date', 'forecast']
+
+    df_init['date'] = pd.to_datetime((df_init['date']/1000).astype('int'), unit='s')
     df_result = pd.concat([df_init, df_forecast], ignore_index=True)
     print(df_result)
 
