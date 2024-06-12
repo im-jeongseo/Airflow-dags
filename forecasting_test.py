@@ -110,7 +110,7 @@ def process_data_from_xcom(**context):
             try : 
                 model = SARIMAX(train_data['close'].values, order=(i), seasonal_order = (j))
                 model_fit = model.fit()
-                print(f'SARIMA : {i},{j} >> AIC : {round(model_fit.aic, 2)}')
+                #print(f'SARIMA : {i},{j} >> AIC : {round(model_fit.aic, 2)}')
                 AIC.append(round(model_fit.aic, 2))
                 params.append((i, j))
                 
@@ -125,20 +125,19 @@ def process_data_from_xcom(**context):
     print(optim)
 
     #model = ARIMA(train_data['close'].values, order=optim[0][0])
-    model = SARIMAX(train_data['close'].values, order=optim[0][0][0], seasonal_order=optim[0][0][1])
+    model = SARIMAX(train_data['close'].values, order=optim[0][0][0], seasonalorder=optim[0][0][1])
     model_fit = model.fit()    
 
     # 예측값 생성
     print("========== forecast start ==========")
     pred = model_fit.get_forecast(len(test_data) +10)
     pred_val = pred.predicted_mean
+    print(pred_val)
 
     pred_index = list(test_data.index)
     for i in date_idx:
         pred_index.append(i)
     
-    print(pred_val)
-
 
     print("========== result ==========")
     df_forecast = pd.DataFrame(zip(list(date_idx), list(pred_val)))
@@ -146,25 +145,18 @@ def process_data_from_xcom(**context):
     df_result = pd.concat([df_init, df_forecast], ignore_index=True)
     print(df_result)
 
-    return df_result
+    return df_result.to_dict()
 
+def result_push(**kwargs):
+    ti = kwargs['ti']
+    df_dict = ti.xcom_pull(task_ids='process_data_from_xcom')
+    df = pd.DataFrame(df_dict)
 
-# def insert_dataframe_to_postgres():
-#     # 예제 DataFrame 생성
+    # Create a SQLAlchemy engine to connect to PostgreSQL
+    engine = create_engine('postgresql://postgres:postgres@192.168.168.133:30032/stock')
 
-#     data = {'column1': [1, 2, 3], 'column2': ['a', 'b', 'c']}
-#     df = pd.DataFrame(data)
-
-#     # PostgreSQL 연결 정보 가져오기
-#     connection = BaseHook.get_connection('your_postgres_conn_id')
-#     conn_str = f"postgresql+psycopg2://{connection.login}:{connection.password}@{connection.host}:{connection.port}/{connection.schema}"
-
-#     # SQLAlchemy 엔진 생성
-#     engine = create_engine(conn_str)
-
-#     # DataFrame을 PostgreSQL 테이블에 삽입
-#     df.to_sql('your_table_name', engine, if_exists='append', index=False)
-
+    # Replace 'table_name' with your desired table name
+    df.to_sql('tb_stock_dt', engine, if_exists='append', index=False)
 
 
 default_args = {
@@ -172,9 +164,27 @@ default_args = {
 }
 
 dag = DAG(
-    'forecasting_data',
+    'Stock_forecasting',
     default_args=default_args,
     schedule_interval=None,
+)
+
+creating_table = PostgresOperator(
+    task_id="creating_table",
+    postgres_conn_id='stock_test',
+    # tb_stock_dt 라는 테이블이 없는 경우에만 만들도록 IF NOT EXISTS 조건을 넣어주자.
+    sql="""
+        CREATE TABLE IF NOT EXISTS tb_stock_result( 
+            date DATE,
+            open INT,
+            high INT,
+            low INT,
+            close INT,
+            adjclose INT,
+            volume INT,
+            forecast INT
+        );
+    """,
 )
 
 fetch_data = PythonOperator(
@@ -184,16 +194,21 @@ fetch_data = PythonOperator(
     dag=dag,
 )
 
-reprocess_data = PythonOperator(
-    task_id='process_data_from_xcom',
+forecast_data = PythonOperator(
+    task_id='forecast_data_from_xcom',
     python_callable=process_data_from_xcom,
     provide_context=True,
     dag=dag,
 )
 
-# insert_data = 
+result_dt_push = PythonOperator(
+    task_id="result_dt_push",
+    python_callable=result_push, # 실행할 파이썬 함수
+    provide_context=True,
+    dag=dag,
+)
 
-fetch_data >> reprocess_data  # Set task dependencies
+creating_table >> fetch_data >> forecast_data >> result_dt_push # Set task dependencies
 
 
 
