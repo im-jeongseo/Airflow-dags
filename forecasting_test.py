@@ -5,7 +5,7 @@ from airflow.hooks.postgres_hook import PostgresHook
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.utils.dates import days_ago
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 import pandas as pd
 from pandas import json_normalize
 import numpy as np
