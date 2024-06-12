@@ -15,7 +15,7 @@ dag = DAG(
     'kafka_batch',
     default_args=default_args,
     description='kafka data pull&push BashOperator',
-    schedule_interval='None',
+    schedule_interval=None,
     # schedule_interval='@daily',
 )
 
