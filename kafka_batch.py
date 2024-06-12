@@ -1,5 +1,6 @@
 from airflow import DAG
 from airflow.operators.bash import BashOperator
+from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
 from airflow.utils.dates import days_ago
 
 from datetime import datetime
@@ -20,9 +21,20 @@ dag = DAG(
 )
 
 # 각 Python 스크립트를 실행하는 BashOperator
-kafka_producer = BashOperator(
+# kafka_producer = BashOperator(
+#     task_id='kafka_producer',
+#     bash_command='python3 /opt/airflow/scripts/producer_batch.py',
+#     dag=dag,
+# )
+
+kafka_producer = KubernetesPodOperator(
     task_id='kafka_producer',
-    bash_command='python3 /opt/airflow/scripts/producer_batch.py',
+    name='kafka_producer',
+    namespace='airflow',
+    image='python:3.8-slim',
+    cmds=["python", "-c", "producer_batch.py"],
+    arguments=["print('start producer_batch.py')"],  # or use a script file
+    get_logs=True,
     dag=dag,
 )
 
@@ -38,3 +50,18 @@ kafka_producer #>> kafka_consumer
 # DAG 정의 완료
 if __name__ == "__main__":
     dag.cli()
+
+
+
+# # 각 Python 스크립트를 실행하는 KubernetesPodOperator
+# run_script1 = KubernetesPodOperator(
+#     task_id='run_script1',
+#     name='run-script1',
+#     namespace='default',
+#     image='python:3.8-slim',
+#     cmds=["python", "-c"],
+#     arguments=["print('Hello from script1')"],  # or use a script file
+#     get_logs=True,
+#     dag=dag,
+# )
+
