@@ -151,7 +151,7 @@ def result_push(**context):
         raise ValueError("No JSON data received from XCom")
 
     df = pd.read_json(df_json, orient='records')
-    pd.to_datetime(df['date'])
+    df['date'] = pd.to_datetime(df['date'])
     print(df)
 
     # Create a SQLAlchemy engine to connect to PostgreSQL
