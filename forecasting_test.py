@@ -10,17 +10,11 @@ import pandas as pd
 from pandas import json_normalize
 import numpy as np
 
-#from datetime import datetime, timedelta
-#import itertools
-
 import warnings
 warnings.filterwarnings('ignore')
 
 import sys
 import subprocess
-
-#def install_dependencies():
-#    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'scikit-learn'])
 
 
 def fetch_data_from_postgres(**context):
@@ -144,13 +138,17 @@ def process_data_from_xcom(**context):
     df_result = pd.concat([df_init, df_forecast], ignore_index=True)
     print(df_result)
 
-    df_json = df_result.to_json()
+    df_json = df_result.to_json(orient='split')
     context['ti'].xcom_push(key='dataframe_json', value=df_json)
 
 def result_push(**context):
     ti = context['ti']
     df_json = ti.xcom_pull(task_ids='process_data_from_xcom', key='dataframe_json')
-    df = pd.read_json(df_json)
+
+    if df_json is None:
+        raise ValueError("No JSON data received from XCom")
+
+    df = pd.read_json(df_json, orient='split')
     print(df)
 
     # Create a SQLAlchemy engine to connect to PostgreSQL
