@@ -53,7 +53,7 @@ def process_data_from_xcom(**context):
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'scikit-learn'])
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'datetime'])
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'statsmodels'])
-    #subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'itertools'])
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'itertools'])
 
 
     print("========== xcom pull ==========")
