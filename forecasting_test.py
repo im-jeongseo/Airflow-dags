@@ -10,8 +10,8 @@ import pandas as pd
 from pandas import json_normalize
 import numpy as np
 
-from datetime import datetime, timedelta
-import itertools
+#from datetime import datetime, timedelta
+#import itertools
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -53,6 +53,7 @@ def process_data_from_xcom(**context):
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'scikit-learn'])
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'datetime'])
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'statsmodels'])
+    #subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'itertools'])
 
 
     print("========== xcom pull ==========")
@@ -62,17 +63,16 @@ def process_data_from_xcom(**context):
     # Convert JSON to DataFrame
     df_init = pd.read_json(df_json, orient='records')
     
-    # Process the DataFrame as needed
-    #print("DataFrame received from XCom:")
-    #print(df_init)
-    
+    # Process the DataFrame as needed  
     from sklearn.model_selection import train_test_split
     import datetime
     import statsmodels.api as sm
     from statsmodels.tsa.arima.model import ARIMA
     #from statsmodels.tsa.statespace.sarimax import SARIMAX
+    import itertools
 
     df = df_init.set_index(keys='date')
+    df = df.drop('forecast', axis=1)
     print(df)
     
     # train,test split
@@ -83,12 +83,12 @@ def process_data_from_xcom(**context):
     # 예측을 위한 date index 생성
     
     dt=datetime.datetime.today()
-
     date_idx=[]
     for i in range(10):
         delta = datetime.timedelta(days = i)
         dtnew = dt + delta
         date_idx.append(str(dtnew))
+    print(date_idx)
 
 
     # ARIMA 모델 생성
