@@ -150,7 +150,7 @@ def result_push(**context):
     df_json = context['ti'].xcom_pull(task_ids='forecast_data_from_xcom', key='dataframe_json')
     df = pd.read_json(df_json, orient='records')
 
-    for i in range(len(tedfst_df)):
+    for i in range(len(df)):
         if type(df['date'][i]) is int:
             df['date'][i] = pd.to_datetime((df['date'][i]/1000), unit='s')
         else:
