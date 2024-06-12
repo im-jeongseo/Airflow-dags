@@ -145,7 +145,7 @@ def process_data_from_xcom(**context):
 
 def result_push(**context):
     print("========== xcom push ==========")
-    df_json = context['ti'].xcom_pull(task_ids='process_data_from_xcom', key='dataframe_json')
+    df_json = context['ti'].xcom_pull(task_ids='forecast_data_from_xcom', key='dataframe_json')
    
     if df_json is None:
         raise ValueError("No JSON data received from XCom")
