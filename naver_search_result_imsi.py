@@ -77,7 +77,7 @@ def load_csv_to_postgres(ti):
 
 # DAG 틀 설정
 with DAG(
-    dag_id="naver-search-pipeline-imsi",
+    dag_id="ex_naver-search-pipeline-imsi",
     # crontab 표현 사용 가능 https://crontab.guru/
     schedule_interval="@daily", 
     default_args=default_args,

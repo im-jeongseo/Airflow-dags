@@ -5,7 +5,7 @@ from airflow.operators.bash import BashOperator
 import pandas as pd
 
 with DAG(
-    dag_id='dags_bash_operator', # 웹에서 보이는 DAG 이름(python 파일명과는 상관 없음.)
+    dag_id='ex_dags_bash_operator', # 웹에서 보이는 DAG 이름(python 파일명과는 상관 없음.)
     schedule_interval='0 0 * * *', # 분,시,일,월,요일
     start_date=pendulum.datetime(2021, 1, 1, tz="Asia/Seoul"),
     catchup=False, # start_date - 현재 시간 구간에 누락된 task를 실행할지 안할지 결정(False는 실행 X)
