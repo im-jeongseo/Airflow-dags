@@ -138,17 +138,19 @@ def process_data_from_xcom(**context):
     df_result = pd.concat([df_init, df_forecast], ignore_index=True)
     print(df_result)
 
-    df_json = df_result.to_json(orient='split')
+    df_json = df_result.to_json(orient='records')
     context['ti'].xcom_push(key='dataframe_json', value=df_json)
 
-def result_push(**context):
-    ti = context['ti']
-    df_json = ti.xcom_pull(task_ids='process_data_from_xcom', key='dataframe_json')
 
+
+def result_push(**context):
+    print("========== xcom push ==========")
+    df_json = context['ti'].xcom_pull(task_ids='process_data_from_xcom', key='dataframe_json')
+   
     if df_json is None:
         raise ValueError("No JSON data received from XCom")
 
-    df = pd.read_json(df_json, orient='split')
+    df = pd.read_json(df_json, orient='records')
     print(df)
 
     # Create a SQLAlchemy engine to connect to PostgreSQL
