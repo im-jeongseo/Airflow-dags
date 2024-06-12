@@ -144,18 +144,19 @@ def process_data_from_xcom(**context):
     df_result = pd.concat([df_init, df_forecast], ignore_index=True)
     print(df_result)
 
-    return df_result.to_dict()
+    df_json = df_result.to_json()
+    context['ti'].xcom_push(key='dataframe_json', value=df_json)
 
-def result_push(**kwargs):
-    ti = kwargs['ti']
-    df_dict = ti.xcom_pull(task_ids='process_data_from_xcom')
-    df = pd.DataFrame(df_dict)
+def result_push(**context):
+    ti = context['ti']
+    df_json = ti.xcom_pull(task_ids='process_data_from_xcom', key='dataframe_json')
+    df = pd.read_json(df_json)
 
     # Create a SQLAlchemy engine to connect to PostgreSQL
     engine = create_engine('postgresql://postgres:postgres@192.168.168.133:30032/stock')
 
     # Replace 'table_name' with your desired table name
-    df.to_sql('tb_stock_dt', engine, if_exists='append', index=False)
+    df.to_sql('tb_stock_result', engine, if_exists='append', index=False)
 
 
 default_args = {
