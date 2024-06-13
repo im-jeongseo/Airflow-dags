@@ -21,11 +21,11 @@ dag = DAG(
 )
 
 # 각 Python 스크립트를 실행하는 BashOperator
-# kafka_producer = BashOperator(
-#     task_id='kafka_producer',
-#     bash_command='python /opt/airflow/scripts/producer_batch.py',
-#     dag=dag,
-# )
+kafka_producer = BashOperator(
+    task_id='kafka_producer',
+    bash_command='python /opt/airflow/scripts/producer_batch.py',
+    dag=dag,
+)
 
 kafka_consumer = BashOperator(
     task_id='kafka_consumer',
@@ -47,8 +47,7 @@ kafka_consumer = BashOperator(
 
 
 # 태스크 의존성 설정 (예: 모든 스크립트를 병렬로 실행)
-#kafka_producer #>> 
-kafka_consumer
+kafka_producer >> kafka_consumer
 
 # DAG 정의 완료
 if __name__ == "__main__":
