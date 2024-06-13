@@ -9,7 +9,7 @@ from datetime import datetime
 default_args = {
     # 'owner': 'airflow',
     # 'start_date': days_ago(1),
-    'start_date': datetime.datetime(2024,6,12),
+    'start_date': datetime(2024,6,12),
     # 'retries': 1,
 }
 
