@@ -60,7 +60,7 @@ def process_data_from_xcom(**context):
     from sklearn.model_selection import train_test_split
     import datetime
     import statsmodels.api as sm
-    from statsmodels.tsa.arima.model import ARIMA
+    #from statsmodels.tsa.arima.model import ARIMA
     from statsmodels.tsa.statespace.sarimax import SARIMAX
     import itertools
 
@@ -182,7 +182,7 @@ dag = DAG(
     default_args=default_args,
     description='stock data reprocessing & forecasting',
     tags=["postgresql", "reprocessing", "forecasting","PythonOperator","xcom"],
-    schedule_interval='15 16 * * *',
+    schedule_interval='15 10 * * *',
 )
 
 creating_table = PostgresOperator(

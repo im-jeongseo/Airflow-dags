@@ -18,7 +18,7 @@ dag = DAG(
     default_args=default_args,
     description='kafka data pull&push BashOperator',
     tags=["yahoo_finance", "kafka", "conumer","producer","BashOperator"],
-    schedule_interval='0 16 * * *',
+    schedule_interval='0 10 * * *',
     # schedule_interval='@daily',
 )
 
