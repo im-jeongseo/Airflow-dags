@@ -15,7 +15,7 @@ warnings.filterwarnings('ignore')
 
 import sys
 import subprocess
-import datetime
+import datetime as dt
 
 def fetch_data_from_postgres(**context):
     # Initialize PostgresHook
@@ -174,7 +174,7 @@ def result_push(**context):
 
 
 default_args = {
-    'start_date': datetime.datetime(2024,6,12),
+    'start_date': dt.datetime(2024,6,12),
 }
 
 dag = DAG(
