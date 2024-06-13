@@ -8,7 +8,8 @@ from datetime import datetime
 # DAG 정의
 default_args = {
     # 'owner': 'airflow',
-    'start_date': days_ago(1),
+    # 'start_date': days_ago(1),
+    'start_date': datetime.datetime(2024,6,12),
     # 'retries': 1,
 }
 
@@ -16,7 +17,8 @@ dag = DAG(
     'kafka_batch',
     default_args=default_args,
     description='kafka data pull&push BashOperator',
-    schedule_interval=None,
+    tags=["yahoo_finance", "kafka", "conumer","producer","BashOperator"],
+    schedule_interval='0 16 * * *',
     # schedule_interval='@daily',
 )
 

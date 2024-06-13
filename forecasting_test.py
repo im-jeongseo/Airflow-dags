@@ -15,7 +15,7 @@ warnings.filterwarnings('ignore')
 
 import sys
 import subprocess
-
+import datetime
 
 def fetch_data_from_postgres(**context):
     # Initialize PostgresHook
@@ -174,13 +174,15 @@ def result_push(**context):
 
 
 default_args = {
-    'start_date': days_ago(1),
+    'start_date': datetime.datetime(2024,6,12),
 }
 
 dag = DAG(
     'Stock_forecasting',
     default_args=default_args,
-    schedule_interval=None,
+    description='stock data reprocessing & forecasting',
+    tags=["postgresql", "reprocessing", "forecasting","PythonOperator","xcom"],
+    schedule_interval='15 16 * * *',
 )
 
 creating_table = PostgresOperator(
