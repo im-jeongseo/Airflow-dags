@@ -19,7 +19,7 @@ dag = DAG(
     description='kafka data pull&push BashOperator',
     tags=["yahoo_finance", "kafka", "conumer","producer","BashOperator"],
     #schedule_interval='0 10 * * *',
-    schedule_interval='NONE',
+    schedule_interval='None',
 )
 
 # 각 Python 스크립트를 실행하는 BashOperator
