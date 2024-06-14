@@ -182,7 +182,7 @@ dag = DAG(
     default_args=default_args,
     description='stock data reprocessing & forecasting',
     tags=["postgresql", "reprocessing", "forecasting","PythonOperator","xcom"],
-    schedule_interval='15 10 * * *',
+    schedule_interval='15 13 * * *',
     #schedule_interval='None',
 )
 
