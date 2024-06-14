@@ -101,7 +101,7 @@ def process_data_from_xcom(**context):
     for i in pdq :
         for j in seasonal_pdq :
             try : 
-                model = SARIMAX(train_data['open'].values, order=(i), seasonal_order = (j))
+                model = SARIMAX(train_data['close'].values, order=(i), seasonal_order = (j))
                 model_fit = model.fit()
                 #print(f'SARIMA : {i},{j} >> AIC : {round(model_fit.aic, 2)}')
                 AIC.append(round(model_fit.aic, 2))
@@ -118,7 +118,7 @@ def process_data_from_xcom(**context):
     print(optim)
 
     #model = ARIMA(train_data['close'].values, order=optim[0][0])
-    model = SARIMAX(train_data['open'].values, order=optim[0][0][0], seasonalorder=optim[0][0][1])
+    model = SARIMAX(train_data['close'].values, order=optim[0][0][0], seasonalorder=optim[0][0][1])
     model_fit = model.fit()    
 
     # 예측값 생성
