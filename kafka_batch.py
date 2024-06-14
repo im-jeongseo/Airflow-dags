@@ -9,7 +9,7 @@ from datetime import datetime
 default_args = {
     # 'owner': 'airflow',
     # 'start_date': days_ago(1),
-    'start_date': datetime(2024,6,12),
+    'start_date': datetime(2024,6,12, tz),
     # 'retries': 1,
 }
 
@@ -18,8 +18,8 @@ dag = DAG(
     default_args=default_args,
     description='kafka data pull&push BashOperator',
     tags=["yahoo_finance", "kafka", "conumer","producer","BashOperator"],
-    schedule_interval='0 10 * * *',
-    # schedule_interval='@daily',
+    #schedule_interval='0 10 * * *',
+    schedule_interval='NONE',
 )
 
 # 각 Python 스크립트를 실행하는 BashOperator
