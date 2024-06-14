@@ -20,7 +20,7 @@ dag = DAG(
     tags=["yahoo_finance", "kafka", "conumer","producer","BashOperator"],
     schedule_interval='0 13 * * *',
     #schedule_interval='None',
-    # 테스트
+    # 테스트 asd
 )
 
 # 각 Python 스크립트를 실행하는 BashOperator
